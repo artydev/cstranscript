@@ -1,0 +1,272 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation Déploiement IIS - Whisper RAP</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            color: #334155;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px;
+            background: #f8fafc;
+        }
+
+        header {
+            background: #004a99;
+            color: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            letter-spacing: -0.025em;
+        }
+
+        .container {
+            background: white;
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        h2 {
+            color: #004a99;
+            border-bottom: 2px solid #cbd5e1;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+            h2::before {
+                content: "•";
+                color: #3b82f6;
+                font-size: 2rem;
+                margin-right: 10px;
+            }
+
+        h3 {
+            color: #1e40af;
+            margin-top: 1.8rem;
+            background: #eff6ff;
+            padding: 8px 15px;
+            border-radius: 6px;
+        }
+
+        code {
+            background: #f1f5f9;
+            padding: 0.3rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            color: #be123c;
+            font-size: 0.95rem;
+        }
+
+        pre {
+            background: #1e293b;
+            color: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 14px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f1f5f9;
+            color: #475569;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+
+        .iis-box {
+            border: 2px solid #004a99;
+            background: #f0f9ff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+            .iis-box h4 {
+                margin-top: 0;
+                color: #004a99;
+            }
+
+        .warning {
+            background: #fff7ed;
+            border-left: 5px solid #f97316;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .badge {
+            background: #004a99;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>TranscriptAudio : Guide de Fonctionnement et Déploiement IIS</h1>
+        <p>Architecture .NET 8/9 &bull; Intégration API Albert (Souveraine) &bull; Streaming SSE</p>
+    </header>
+
+    <div class="container">
+        <section>
+            <h2>1. Présentation du Système</h2>
+            <p>
+                <strong>TranscriptAudio</strong> est une solution de transcription automatisée optimisée pour les besoins de l'administration. Elle permet de transformer des fichiers audio (MP3, WAV, WebM) en texte via l'intelligence artificielle <strong>Albert (v3)</strong> fournie par la DINUM (Etalab).
+            </p>
+            <p>
+                L'application est conçue pour supporter des fichiers allant jusqu'à <strong>100 Mo</strong> tout en offrant un retour visuel en temps réel grâce au protocole <strong>Server-Sent Events (SSE)</strong>.
+            </p>
+        </section>
+
+        <section>
+            <h2>2. Architecture Logique</h2>
+            <p>Le programme repose sur trois piliers technologiques :</p>
+            <ul>
+                <li><strong>Minimal API (.NET 8/9) :</strong> Pour une gestion performante des flux d'upload et des connexions persistantes.</li>
+                <li><strong>HTMX :</strong> Pour une interface réactive miminimisant drastiquement l'utilisation de Javascript.</li>
+                <li><strong>Background Worker :</strong> Un service singleton qui gère une file d'attente (Bounded Channel) pour ne pas saturer l'API distante.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>3. Configuration Spécifique pour IIS</h2>
+            <p>Lors d'un déploiement sur IIS, les limitations par défaut du serveur web Windows peuvent bloquer les fichiers de plus de 30 Mo. Les modifications suivantes sont impératives :</p>
+
+            <div class="iis-box">
+                <h4>Configuration du fichier web.config</h4>
+                <p>Ce fichier doit être placé à la racine du site pour autoriser les uploads de 100 Mo et désactiver le buffering SSE :</p>
+                <pre>&lt;configuration&gt;
+  &lt;system.webServer&gt;
+    &lt;security&gt;
+      &lt;requestFiltering&gt;
+        &lt;!-- MaxAllowedContentLength en octets (105 Mo ici) --&gt;
+        &lt;requestLimits maxAllowedContentLength="110100480" /&gt;
+      &lt;/requestFiltering&gt;
+    &lt;/security&gt;
+    &lt;aspNetCore processPath="dotnet" arguments=".\TranscriptAudio.Presentation.JSChunk.dll" 
+                stdoutLogEnabled="false" hostingModel="inprocess"&gt;
+      &lt;handlerSettings&gt;
+        &lt;!-- Désactiver le buffering IIS pour permettre le streaming temps réel (SSE) --&gt;
+        &lt;handlerSetting name="responseBufferLimit" value="0" /&gt;
+      &lt;/handlerSettings&gt;
+    &lt;/aspNetCore&gt;
+  &lt;/system.webServer&gt;
+&lt;/configuration&gt;</pre>
+            </div>
+
+            <div class="warning">
+                <strong>Pool d'application :</strong> Le pool d'application IIS doit avoir les droits d'écriture sur le dossier temporaire de Windows (<code>C:\Windows\Temp</code>) car le programme utilise le disque pour streamer les fichiers volumineux sans saturer la RAM.
+            </div>
+        </section>
+
+        <section>
+            <h2>4. Cycle de Traitement des Données</h2>
+
+            <h3>4.1 Phase d'Upload (Streaming Disque)</h3>
+            <p>
+                Pour éviter les pics de mémoire RAM (Out Of Memory), le programme n'utilise pas de <code>MemoryStream</code>. Le flux est lu directement depuis la requête HTTP et écrit dans un fichier temporaire via <code>FileOptions.DeleteOnClose</code>.
+                Le fichier est automatiquement supprimé dès que le service de transcription a fini sa lecture.
+            </p>
+
+            <h3>4.2 Communication SSE (Server-Sent Events)</h3>
+            <p>
+                Une fois l'upload terminé, le client ouvre une connexion GET persistante. Le serveur envoie des fragments HTML au format SSE :
+            </p>
+            <pre>data: &lt;div class="status"&gt;Transcription en cours...&lt;/div&gt;\n\n</pre>
+            <p>
+                <strong>Note importante :</strong> IIS peut tenter de bufferiser ces messages. La configuration <code>responseBufferLimit="0"</code> dans le <code>web.config</code> est cruciale pour que l'utilisateur voie la progression en temps réel.
+            </p>
+        </section>
+
+        <section>
+            <h2>5. Détails des Endpoints</h2>
+            <table>
+                <tr>
+                    <th>Route</th>
+                    <th>Méthode</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><code>/transcribe-audio</code></td>
+                    <td><span class="badge">POST</span></td>
+                    <td>Réception du fichier audio et mise en file d'attente.</td>
+                </tr>
+                <tr>
+                    <td><code>/transcribe-sse/{id}</code></td>
+                    <td><span class="badge">GET</span></td>
+                    <td>Flux de données temps réel pour les mises à jour de statut.</td>
+                </tr>
+                <tr>
+                    <td><code>/transcript</code></td>
+                    <td>-</td>
+                    <td>PathBase configuré pour IIS si l'application est dans un sous-répertoire.</td>
+                </tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>6. Optimisation de l'IA (Albert API)</h2>
+            <p>Le service <code>WhisperService</code> intègre des mécanismes de résilience :</p>
+            <ul>
+                <li><strong>Polly Retry Policy :</strong> En cas d'erreur 429 (Too Many Requests), le système attend et réessaie automatiquement 3 fois.</li>
+                <li><strong>Multi-threading :</strong> Jusqu'à 3-5 ouvriers simultanés (configurable) traitent la file d'attente.</li>
+                <li><strong>Formatage :</strong> Le texte est renvoyé avec <code>white-space: pre-wrap</code> pour respecter la ponctuation générée par l'IA.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>7. Maintenance et Logs</h2>
+            <p>
+                En cas de déploiement IIS, les erreurs critiques peuvent être consultées dans l'<strong>Observateur d'événements Windows</strong> (Journaux Windows > Application).
+                Il est recommandé d'activer les logs <code>stdout</code> dans le <code>web.config</code> uniquement lors des phases de diagnostic.
+            </p>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 - Projet Whisper RAP &bull; Déploiement souverain sur IIS &bull; Albert AI Integration</p>
+    </footer>
+
+</body>
+</html>

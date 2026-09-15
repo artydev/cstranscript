@@ -1,0 +1,1595 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TranscriptAudio — Developer Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:         #f7f6f2;
+    --bg-card:    #ffffff;
+    --bg-code:    #f0ede6;
+    --border:     #e2ddd6;
+    --border-dark:#c8c2b8;
+    --text:       #1a1814;
+    --text-2:     #4a4640;
+    --text-3:     #8a8480;
+    --accent:     #2563eb;
+    --accent-bg:  #eff6ff;
+    --accent-2:   #dc6b19;
+    --accent-2bg: #fff7ed;
+    --green:      #16a34a;
+    --green-bg:   #f0fdf4;
+    --red:        #dc2626;
+    --red-bg:     #fef2f2;
+    --purple:     #7c3aed;
+    --purple-bg:  #f5f3ff;
+    --tag-height: 22px;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  nav {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--bg-card);
+    border-right: 1px solid var(--border);
+    padding: 32px 0;
+    font-size: 13px;
+  }
+
+  .nav-logo {
+    padding: 0 24px 28px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+
+  .nav-logo .wordmark {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .nav-logo .version {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-3);
+    margin-top: 2px;
+  }
+
+  .nav-section {
+    padding: 0 24px;
+    margin-bottom: 20px;
+  }
+
+  .nav-section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  nav a {
+    display: block;
+    padding: 5px 8px;
+    border-radius: 4px;
+    color: var(--text-2);
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+    font-size: 13px;
+    margin-bottom: 1px;
+  }
+
+  nav a:hover { background: var(--bg); color: var(--text); }
+  nav a.active { background: var(--accent-bg); color: var(--accent); font-weight: 500; }
+
+  nav a .file-ext {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-3);
+  }
+
+  /* ── MAIN ── */
+  main {
+    padding: 56px 64px 120px;
+    max-width: 900px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    margin-bottom: 64px;
+    padding-bottom: 48px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  .hero h1 {
+    font-size: 42px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 span { color: var(--accent); }
+
+  .hero-desc {
+    font-size: 17px;
+    font-weight: 300;
+    color: var(--text-2);
+    line-height: 1.75;
+    max-width: 640px;
+    margin-bottom: 32px;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .meta-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .meta-value {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* ── PIPELINE DIAGRAM ── */
+  .pipeline {
+    margin: 32px 0;
+    padding: 28px 32px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow-x: auto;
+  }
+
+  .pipeline-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 20px;
+  }
+
+  .pipeline-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: nowrap;
+  }
+
+  .pipeline-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-width: 90px;
+  }
+
+  .pipeline-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .pipeline-icon.client  { background: var(--accent-bg);  color: var(--accent); }
+  .pipeline-icon.server  { background: var(--green-bg);   color: var(--green); }
+  .pipeline-icon.api     { background: var(--purple-bg);  color: var(--purple); }
+  .pipeline-icon.storage { background: var(--accent-2bg); color: var(--accent-2); }
+
+  .pipeline-step-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-align: center;
+    color: var(--text-2);
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  .pipeline-step-sub {
+    font-size: 10px;
+    color: var(--text-3);
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .pipeline-arrow {
+    flex: 1;
+    min-width: 24px;
+    height: 1px;
+    background: var(--border-dark);
+    position: relative;
+    margin-bottom: 24px;
+  }
+
+  .pipeline-arrow::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: -4px;
+    border: 4px solid transparent;
+    border-left: 6px solid var(--border-dark);
+  }
+
+  .pipeline-arrow .arrow-label {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-3);
+    white-space: nowrap;
+    background: var(--bg-card);
+    padding: 0 4px;
+  }
+
+  /* ── SECTIONS ── */
+  section { margin-bottom: 64px; }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 28px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-number {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-3);
+    font-weight: 500;
+  }
+
+  h2 {
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  h3 {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    margin: 28px 0 10px;
+  }
+
+  h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 20px 0 6px;
+    font-family: var(--mono);
+  }
+
+  p { color: var(--text-2); margin-bottom: 14px; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── FILE CARDS ── */
+  .file-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .file-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  .file-badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .file-badge.js     { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; }
+  .file-badge.cs     { background: #ede9fe; color: #5b21b6; border: 1px solid #c4b5fd; }
+  .file-badge.razor  { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+  .file-badge.json   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+  .file-path {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  .file-card-body { padding: 20px; }
+
+  .file-purpose {
+    font-size: 14px;
+    color: var(--text-2);
+    margin-bottom: 16px;
+    line-height: 1.65;
+  }
+
+  /* ── RESPONSIBILITY LIST ── */
+  .resp-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .resp-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13.5px;
+    color: var(--text-2);
+    line-height: 1.6;
+  }
+
+  .resp-list li::before {
+    content: '→';
+    font-family: var(--mono);
+    color: var(--accent);
+    font-size: 12px;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+
+  /* ── CODE BLOCKS ── */
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    margin: 12px 0 20px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: var(--text);
+  }
+
+  code {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    background: var(--bg-code);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: var(--text);
+  }
+
+  pre code { background: none; border: none; padding: 0; font-size: inherit; }
+
+  .token-comment { color: #6b7280; font-style: italic; }
+  .token-keyword { color: #2563eb; font-weight: 500; }
+  .token-string  { color: #16a34a; }
+  .token-fn      { color: #dc6b19; }
+  .token-type    { color: #7c3aed; }
+  .token-num     { color: #dc2626; }
+
+  /* ── CALLOUTS ── */
+  .callout {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 6px;
+    margin: 16px 0;
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+
+  .callout-icon { flex-shrink: 0; font-size: 16px; margin-top: 1px; }
+  .callout-body { color: var(--text-2); }
+  .callout-body strong { color: var(--text); font-weight: 600; }
+
+  .callout.info    { background: var(--accent-bg);  border-left: 3px solid var(--accent); }
+  .callout.warning { background: var(--accent-2bg); border-left: 3px solid var(--accent-2); }
+  .callout.success { background: var(--green-bg);   border-left: 3px solid var(--green); }
+  .callout.danger  { background: var(--red-bg);     border-left: 3px solid var(--red); }
+
+  /* ── TABLES ── */
+  .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+
+  thead tr { border-bottom: 2px solid var(--border-dark); }
+
+  th {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    padding: 8px 12px;
+    text-align: left;
+  }
+
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-2);
+    vertical-align: top;
+  }
+
+  td:first-child { font-family: var(--mono); font-size: 12px; color: var(--text); }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg); }
+
+  /* ── TAGS ── */
+  .tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 3px;
+    border: 1px solid;
+    vertical-align: middle;
+  }
+
+  .tag.client  { background: var(--accent-bg);  color: var(--accent);   border-color: #bfdbfe; }
+  .tag.server  { background: var(--green-bg);   color: var(--green);    border-color: #bbf7d0; }
+  .tag.config  { background: var(--accent-2bg); color: var(--accent-2); border-color: #fed7aa; }
+  .tag.ui      { background: var(--purple-bg);  color: var(--purple);   border-color: #ddd6fe; }
+  .tag.new     { background: #fef9c3;           color: #854d0e;         border-color: #fde047; }
+
+  /* ── TWO COL ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+
+  .info-block {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+  }
+
+  .info-block-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 8px;
+  }
+
+  .info-block p { font-size: 13.5px; margin-bottom: 0; }
+
+  /* ── CONFIG KEY TABLE ── */
+  .config-key {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+  }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin: 20px 0;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 2;
+    color: var(--text-2);
+  }
+
+  .flow-step { display: flex; align-items: flex-start; gap: 16px; }
+  .flow-num {
+    background: var(--accent);
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+
+  .flow-content { flex: 1; }
+  .flow-content strong { color: var(--text); font-weight: 600; }
+  .flow-divider {
+    margin: 6px 0 6px 36px;
+    border: none;
+    border-left: 1px dashed var(--border-dark);
+    height: 16px;
+    width: 1px;
+  }
+
+  /* ── SECURITY ── */
+  .secret-warning {
+    background: var(--red-bg);
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 20px 0;
+  }
+
+  .secret-warning h4 {
+    color: var(--red);
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .secret-warning p { font-size: 13.5px; margin-bottom: 8px; }
+  .secret-warning p:last-child { margin-bottom: 0; }
+
+  /* ── FOOTER ── */
+  footer {
+    margin-top: 80px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-3);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* ── SCROLLBAR ── */
+  nav::-webkit-scrollbar { width: 4px; }
+  nav::-webkit-scrollbar-track { background: transparent; }
+  nav::-webkit-scrollbar-thumb { background: var(--border-dark); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<!-- ── SIDEBAR ── -->
+<nav>
+  <div class="nav-logo">
+    <div class="wordmark">TranscriptAudio</div>
+    <div class="version">Developer Documentation · 2026-03</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Overview</div>
+    <a href="#overview" class="active">Purpose &amp; Architecture</a>
+    <a href="#pipeline">Request Pipeline</a>
+    <a href="#modes">Operating Modes</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Client</div>
+    <a href="#pipelinechunk-js">pipelinechunk<span class="file-ext">.js</span></a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Server</div>
+    <a href="#program-cs">Program<span class="file-ext">.cs</span></a>
+    <a href="#whisperservice-cs">WhisperService<span class="file-ext">.cs</span></a>
+    <a href="#statustracker-cs">TranscriptionStatusTracker<span class="file-ext">.cs</span></a>
+    <a href="#transcriptionresult-razor">TranscriptionResult<span class="file-ext">.razor</span></a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Configuration</div>
+    <a href="#appsettings">appsettings<span class="file-ext">.json</span></a>
+    <a href="#security">Security</a>
+    <a href="#iis">IIS / web.config</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Reference</div>
+    <a href="#constants">Constants</a>
+    <a href="#dependencies">Dependencies</a>
+  </div>
+</nav>
+
+<!-- ── MAIN ── -->
+<main>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">Developer Documentation</div>
+    <h1>Audio<span>Transcript</span></h1>
+    <p class="hero-desc">
+      A Blazor Server application that transcribes audio files of arbitrary size by splitting them into raw chunks,
+      re-encoding each chunk server-side with FFmpeg, and submitting them to a Whisper-compatible speech-to-text API
+      over Server-Sent Events.
+    </p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Stack</span>
+        <span class="meta-value">ASP.NET Core · Blazor · HTMX</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">API</span>
+        <span class="meta-value">Albert / OpenAI Whisper-compatible</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Re-encoder</span>
+        <span class="meta-value">FFmpeg (server-side)</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Real-time</span>
+        <span class="meta-value">SSE (Server-Sent Events)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERVIEW -->
+  <section id="overview">
+    <div class="section-header">
+      <span class="section-number">01</span>
+      <h2>Purpose &amp; Architecture</h2>
+    </div>
+
+    <p>
+      TranscriptAudio solves a concrete problem: Whisper-compatible APIs impose a hard upload limit (typically 25 MB),
+      but real-world audio recordings — meetings, interviews, lectures — routinely exceed this threshold.
+      The application handles files of any size transparently, hiding all chunking complexity from the user.
+    </p>
+    <p>
+      Rather than re-encoding audio on the client (which required loading the entire decoded PCM buffer into browser RAM),
+      the current architecture delegates all audio processing to FFmpeg running on the server. The client sends
+      raw binary slices; the server converts each slice to a valid mono 16 kHz WAV before passing it to Whisper.
+    </p>
+
+    <div class="two-col">
+      <div class="info-block">
+        <div class="info-block-label">Small files (&lt; 12 MB)</div>
+        <p>Handled directly by HTMX — a single POST to the transcription endpoint, no JavaScript pipeline involved. Response is rendered as an HTML fragment.</p>
+      </div>
+      <div class="info-block">
+        <div class="info-block-label">Large files (≥ 12 MB)</div>
+        <p>HTMX submission is intercepted. The JS pipeline takes over: slices the file into 10 MB raw chunks and sends them sequentially, streaming progress via SSE.</p>
+      </div>
+    </div>
+
+    <div class="pipeline" id="pipeline">
+      <div class="pipeline-title">End-to-end request pipeline</div>
+      <div class="pipeline-flow">
+
+        <div class="pipeline-step">
+          <div class="pipeline-icon client">📁</div>
+          <div class="pipeline-step-label">User<br>uploads file</div>
+          <div class="pipeline-step-sub">any format</div>
+        </div>
+
+        <div class="pipeline-arrow"><span class="arrow-label">Blob.slice()</span></div>
+
+        <div class="pipeline-step">
+          <div class="pipeline-icon client">✂️</div>
+          <div class="pipeline-step-label">JS slicer<br>chunks</div>
+          <div class="pipeline-step-sub">10 MB raw</div>
+        </div>
+
+        <div class="pipeline-arrow"><span class="arrow-label">multipart POST</span></div>
+
+        <div class="pipeline-step">
+          <div class="pipeline-icon server">⚙️</div>
+          <div class="pipeline-step-label">FFmpeg<br>re-encodes</div>
+          <div class="pipeline-step-sub">mono 16kHz WAV</div>
+        </div>
+
+        <div class="pipeline-arrow"><span class="arrow-label">HTTP POST</span></div>
+
+        <div class="pipeline-step">
+          <div class="pipeline-icon api">🎙️</div>
+          <div class="pipeline-step-label">Whisper<br>API</div>
+          <div class="pipeline-step-sub">transcription</div>
+        </div>
+
+        <div class="pipeline-arrow"><span class="arrow-label">SSE stream</span></div>
+
+        <div class="pipeline-step">
+          <div class="pipeline-icon storage">📝</div>
+          <div class="pipeline-step-label">Session<br>assembles</div>
+          <div class="pipeline-step-sub">final text</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- OPERATING MODES -->
+  <section id="modes">
+    <div class="section-header">
+      <span class="section-number">02</span>
+      <h2>Operating Modes</h2>
+    </div>
+
+    <p>The application has two distinct code paths depending on file size, sharing the same Whisper backend.</p>
+
+    <h3>Mode A — Direct HTMX (small files)</h3>
+    <p>
+      When the uploaded file is below <code>CHUNK_LIMIT</code> (12 MB), the default HTMX form submission proceeds
+      unmodified. The entire file is POSTed in a single request. The server transcribes it and returns an HTML
+      fragment that HTMX swaps into the output element. No custom JavaScript runs.
+    </p>
+
+    <h3>Mode B — JS Chunk Pipeline (large files)</h3>
+    <p>
+      When the file meets or exceeds <code>CHUNK_LIMIT</code>, the <code>htmx:confirm</code> event is intercepted
+      and <code>lancerPipelineChunk()</code> is called instead. The pipeline is strictly sequential:
+    </p>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-content"><strong>Slice</strong> — <code>file.slice(offset, offset + CHUNK_SIZE)</code> produces a zero-copy Blob view. No bytes are copied into JS heap.</div>
+      </div>
+      <hr class="flow-divider">
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-content"><strong>POST</strong> — each chunk is sent as <code>multipart/form-data</code> with its index, total count, original file extension, and a shared <code>sessionId</code>.</div>
+      </div>
+      <hr class="flow-divider">
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-content"><strong>FFmpeg</strong> — server writes raw bytes to a temp file, spawns FFmpeg, reads the output WAV path. No audio data in managed memory.</div>
+      </div>
+      <hr class="flow-divider">
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div class="flow-content"><strong>Whisper</strong> — the WAV is streamed to the Whisper API from disk via <code>FileStream</code>. Response is parsed for the <code>text</code> field.</div>
+      </div>
+      <hr class="flow-divider">
+      <div class="flow-step">
+        <div class="flow-num">5</div>
+        <div class="flow-content"><strong>SSE (per-chunk)</strong> — client <code>await</code>s the per-chunk SSE stream to completion before sending the next chunk. Natural back-pressure, no rate-limit timer needed.</div>
+      </div>
+      <hr class="flow-divider">
+      <div class="flow-step">
+        <div class="flow-num">6</div>
+        <div class="flow-content"><strong>Session SSE</strong> — once all chunks complete, the session channel emits the final reassembled text. The per-chunk texts are joined in order.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PIPELINECHUNK.JS -->
+  <section id="pipelinechunk-js">
+    <div class="section-header">
+      <span class="section-number">03</span>
+      <h2>pipelinechunk.js <span class="tag client">CLIENT</span></h2>
+    </div>
+
+    <div class="file-card">
+      <div class="file-card-header">
+        <span class="file-badge js">.js</span>
+        <span class="file-path">wwwroot/js/pipelinechunk.js</span>
+      </div>
+      <div class="file-card-body">
+        <p class="file-purpose">
+          Self-contained IIFE that intercepts HTMX form submissions for large files and orchestrates
+          the entire client-side chunking pipeline. Has no external dependencies — vanilla JS only.
+        </p>
+        <ul class="resp-list">
+          <li>Displays the selected filename and size in the UI on file input change.</li>
+          <li>Intercepts <code>htmx:confirm</code> and routes large files to the chunk pipeline.</li>
+          <li>Slices the file into raw Blob chunks without loading file content into memory.</li>
+          <li>POSTs each chunk sequentially with <code>sessionId</code>, <code>index</code>, <code>total</code>, and the original file extension.</li>
+          <li>Opens and reads the per-chunk SSE stream, updating the output element in real time.</li>
+          <li>Opens the session SSE channel once (on first chunk) and awaits the final assembled text.</li>
+          <li>Updates the progress bar and status label throughout the pipeline.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Configuration Constants</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Constant</th><th>Value</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>CHUNK_SIZE_MB</td><td>10</td><td>Raw chunk size in megabytes. Must stay below IIS <code>maxAllowedContentLength</code> (15 MB).</td></tr>
+          <tr><td>CHUNK_SIZE</td><td>CHUNK_SIZE_MB × 1024²</td><td>Computed byte value used in <code>Blob.slice()</code>.</td></tr>
+          <tr><td>CHUNK_LIMIT</td><td>12 × 1024²</td><td>File size threshold triggering the chunk pipeline instead of HTMX. Set below the 15 MB IIS limit.</td></tr>
+          <tr><td>BASE_URL</td><td>from DOM</td><td>Read from <code>data-baseurl</code> attribute on <code>#baseurl</code> element. Injected server-side by Blazor/Razor.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Key Functions</h3>
+
+    <h4>slicerFichier(file, chunkSize)</h4>
+    <p>
+      Synchronous generator. Computes <code>total = Math.ceil(file.size / chunkSize)</code> before
+      the first yield — no accumulation needed. Each iteration yields <code>{ blob, index, total }</code>.
+      <code>Blob.slice()</code> is a zero-copy pointer into the browser's file handle; no bytes enter the JS heap.
+    </p>
+
+    <h4>lireSSE(response)</h4>
+    <p>
+      Async generator over a <code>ReadableStream</code>. Splits on <code>\n\n</code>, filters for
+      <code>data:</code> prefixed lines, and yields the payload string. The <code>finally</code> block
+      guarantees <code>reader.releaseLock()</code> even if the consumer breaks early or throws.
+      Handles the trailing-buffer edge case (stream ending without a final <code>\n\n</code>).
+    </p>
+
+    <h4>lancerPipelineChunk(file)</h4>
+    <p>
+      Main async pipeline driver. Uses a plain <code>for...of</code> loop (not <code>for await...of</code>)
+      since <code>slicerFichier</code> is synchronous. Each iteration awaits the full SSE stream for that chunk
+      before proceeding — this provides natural back-pressure and makes a rate-limit delay unnecessary.
+    </p>
+
+    <h4>extOf(name)</h4>
+    <p>
+      Extracts the file extension from the original filename and appends it to the chunk filename
+      (<code>chunk_0.mp3</code>, <code>chunk_1.mp3</code>…). FFmpeg uses this extension to detect
+      the input container format. Falls back to <code>.bin</code> for extensionless files.
+    </p>
+
+    <div class="callout info">
+      <span class="callout-icon">ℹ</span>
+      <div class="callout-body">
+        <strong>Why no rate-limit delay?</strong> The pipeline <code>await</code>s each chunk's
+        SSE stream to completion before sending the next chunk. Only one chunk is ever in-flight at a time,
+        so a fixed <code>sleep()</code> between sends would only add dead time on top of an already
+        sequential flow.
+      </div>
+    </div>
+
+    <pre><code><span class="token-comment">// Zero-copy slicer — synchronous generator</span>
+<span class="token-keyword">function</span>* <span class="token-fn">slicerFichier</span>(file, chunkSize) {
+    <span class="token-keyword">const</span> total = Math.<span class="token-fn">ceil</span>(file.size / chunkSize);  <span class="token-comment">// known upfront</span>
+    <span class="token-keyword">let</span> offset  = <span class="token-num">0</span>;
+    <span class="token-keyword">let</span> index   = <span class="token-num">0</span>;
+    <span class="token-keyword">while</span> (offset &lt; file.size) {
+        <span class="token-keyword">yield</span> { blob: file.<span class="token-fn">slice</span>(offset, offset + chunkSize), index, total };
+        offset += chunkSize;
+        index++;
+    }
+}</code></pre>
+
+  </section>
+
+  <!-- PROGRAM.CS -->
+  <section id="program-cs">
+    <div class="section-header">
+      <span class="section-number">04</span>
+      <h2>Program.cs <span class="tag server">SERVER</span></h2>
+    </div>
+
+    <div class="file-card">
+      <div class="file-card-header">
+        <span class="file-badge cs">.cs</span>
+        <span class="file-path">Program.cs (project root)</span>
+      </div>
+      <div class="file-card-body">
+        <p class="file-purpose">
+          Application entry point and composition root. Configures Kestrel limits, registers all
+          services into the DI container, builds the HTTP middleware pipeline, and maps every
+          endpoint. Contains all routing logic — no controllers, no Razor Page code-behind.
+        </p>
+        <ul class="resp-list">
+          <li>Sets Kestrel and ASP.NET Core form limits to 101 MB (100 MB file + 1 MB overhead).</li>
+          <li>Binds <code>WhisperConfig</code> and <code>ProxyConfig</code> strongly-typed option classes from <code>appsettings.json</code>.</li>
+          <li>Registers <code>TranscriptionStatusTracker</code> and <code>WhisperService</code> as singletons.</li>
+          <li>Configures the named <code>"Whisper"</code> <code>HttpClient</code> with base URL, bearer token, 15-minute timeout, and optional proxy.</li>
+          <li>Applies a <code>/transcript</code> path base in non-development environments (IIS sub-application support).</li>
+          <li>Maps three endpoints: SSE stream GET, single-file POST, chunk POST.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Size Limits Configuration</h3>
+    <p>
+      Two independent limits must both be raised. Kestrel enforces the raw TCP body size;
+      ASP.NET Core's form parser enforces the multipart section size. Both must accommodate
+      the maximum expected upload — set here to 100 MB with 1 MB overhead for multipart boundaries.
+    </p>
+
+    <pre><code><span class="token-keyword">const long</span> MaxFileSize = <span class="token-num">100</span> * <span class="token-num">1024</span> * <span class="token-num">1024</span>; <span class="token-comment">// 100 MB</span>
+
+<span class="token-comment">// Kestrel — raw TCP body</span>
+builder.WebHost.<span class="token-fn">ConfigureKestrel</span>(options =>
+    options.Limits.MaxRequestBodySize = MaxFileSize + (<span class="token-num">1024</span> * <span class="token-num">1024</span>));
+
+<span class="token-comment">// ASP.NET Core — multipart form section</span>
+builder.Services.<span class="token-fn">Configure</span>&lt;<span class="token-type">FormOptions</span>&gt;(options =>
+    options.MultipartBodyLengthLimit = MaxFileSize + (<span class="token-num">1024</span> * <span class="token-num">1024</span>));</code></pre>
+
+    <div class="callout warning">
+      <span class="callout-icon">⚠</span>
+      <div class="callout-body">
+        <strong>IIS overrides these limits.</strong> Even with Kestrel configured correctly, IIS
+        applies its own <code>maxAllowedContentLength</code> before the request reaches Kestrel.
+        The <code>web.config</code> entry (section 09) must also be set, or IIS will return HTTP 413
+        before ASP.NET Core sees the request.
+      </div>
+    </div>
+
+    <h3>HttpClient — Named "Whisper"</h3>
+    <p>
+      The Whisper HTTP client is configured via the typed options pattern. The base URL and API key
+      are read from <code>WhisperConfig</code> (bound from the <code>Whisper</code> section) and will
+      throw <code>InvalidOperationException</code> at startup if either value is missing — failing
+      fast rather than at the first transcription request.
+    </p>
+
+    <pre><code>builder.Services.<span class="token-fn">AddHttpClient</span>(<span class="token-string">"Whisper"</span>, (sp, client) => {
+    <span class="token-keyword">var</span> config = sp.<span class="token-fn">GetRequiredService</span>&lt;<span class="token-type">IOptions&lt;WhisperConfig&gt;</span>&gt;().Value;
+    client.BaseAddress = <span class="token-keyword">new</span> <span class="token-type">Uri</span>(config.ApiTranscript
+        ?? <span class="token-keyword">throw new</span> <span class="token-type">InvalidOperationException</span>(<span class="token-string">"API URL manquante"</span>));
+    client.Timeout = TimeSpan.<span class="token-fn">FromMinutes</span>(<span class="token-num">15</span>);
+    client.DefaultRequestHeaders.Authorization =
+        <span class="token-keyword">new</span> <span class="token-type">AuthenticationHeaderValue</span>(<span class="token-string">"Bearer"</span>, config.ApiKey
+            ?? <span class="token-keyword">throw new</span> <span class="token-type">InvalidOperationException</span>(<span class="token-string">"API Key manquante"</span>));
+}).<span class="token-fn">ConfigurePrimaryHttpMessageHandler</span>(sp => {
+    <span class="token-keyword">var</span> proxy = sp.<span class="token-fn">GetRequiredService</span>&lt;<span class="token-type">IOptions&lt;ProxyConfig&gt;</span>&gt;().Value;
+    <span class="token-keyword">return</span> proxy.UseProxy &amp;&amp; !<span class="token-type">string</span>.<span class="token-fn">IsNullOrWhiteSpace</span>(proxy.Url)
+        ? <span class="token-keyword">new</span> <span class="token-type">HttpClientHandler</span> { Proxy = <span class="token-keyword">new</span> <span class="token-type">WebProxy</span>(proxy.Url), UseProxy = <span class="token-keyword">true</span> }
+        : <span class="token-keyword">new</span> <span class="token-type">HttpClientHandler</span>();
+});</code></pre>
+
+    <h3>Endpoints</h3>
+
+    <h4>GET /transcribe-sse/{id:guid}</h4>
+    <p>
+      Dual-purpose SSE stream endpoint. The same route serves both per-chunk channels
+      (short-lived, one per chunk) and the session channel (long-lived, one per file upload).
+      The distinction is purely by the GUID passed — <code>chunkId</code> or <code>sessionId</code>.
+    </p>
+    <ul class="resp-list">
+      <li>Sets <code>Content-Type: text/event-stream</code> and <code>X-Accel-Buffering: no</code> (disables nginx/IIS output buffering).</li>
+      <li>Subscribes to the <code>TranscriptionStatusTracker</code> channel for the given id.</li>
+      <li>Strips newlines from HTML payloads before writing — SSE <code>data:</code> lines must not contain raw CR/LF.</li>
+      <li>Flushes after every write to ensure the browser receives each event immediately.</li>
+      <li>Calls <code>tracker.Unsubscribe(id)</code> in <code>finally</code> to clean up the channel on client disconnect or completion.</li>
+    </ul>
+
+    <h4>POST /transcribe-audio</h4>
+    <p>
+      Handles single-file uploads (small files routed through HTMX directly). Saves the file
+      to a temp path, enqueues it in <code>WhisperService</code>, then returns an HTML fragment
+      rendered by <code>TranscriptionSseBridge</code> — a Blazor component that initialises
+      the SSE listener on the client side.
+    </p>
+
+    <div class="callout info">
+      <span class="callout-icon">ℹ</span>
+      <div class="callout-body">
+        <strong>TranscriptionSseBridge</strong> is a Blazor component rendered server-side to HTML,
+        similar to <code>TranscriptionResult</code>. It renders a self-contained SSE listener
+        (JavaScript included) that connects to <code>/transcribe-sse/{id}</code> and updates the
+        output element. It is the bridge between the HTMX response and the SSE stream.
+      </div>
+    </div>
+
+    <h4>POST /transcribe-chunk</h4>
+    <p>
+      Receives one raw chunk at a time from the JS pipeline. Validates all required form fields
+      (<code>AudioFile</code>, <code>index</code>, <code>total</code>, <code>sessionId</code>),
+      reads the chunk bytes into a <code>MemoryStream</code>, then hands them to
+      <code>WhisperService.EnqueueChunkAsync()</code>.
+    </p>
+
+    <div class="callout warning">
+      <span class="callout-icon">⚠</span>
+      <div class="callout-body">
+        <strong>Case-sensitive field name.</strong> The form field is read with
+        <code>form.Files.GetFile("Audiofile")</code> — note the lowercase <code>f</code> in
+        <code>file</code>. The JS client sends it as <code>AudioFile</code> (capital F).
+        This mismatch will cause every chunk POST to return HTTP 400. Verify both sides use
+        the identical casing.
+      </div>
+    </div>
+
+    <p>
+      On success, returns a JSON object with both SSE URLs. The JS client uses
+      <code>sseUrl</code> immediately for per-chunk progress and opens <code>sessionSseUrl</code>
+      once on the first chunk, keeping it open until the final assembled text arrives.
+    </p>
+
+    <pre><code><span class="token-comment">// Response shape from POST /transcribe-chunk</span>
+{
+  <span class="token-string">"sseUrl"</span>:        <span class="token-string">"/transcribe-sse/{chunkId}"</span>,    <span class="token-comment">// short-lived</span>
+  <span class="token-string">"sessionSseUrl"</span>: <span class="token-string">"/transcribe-sse/{sessionId}"</span>, <span class="token-comment">// long-lived</span>
+  <span class="token-string">"chunkId"</span>:       <span class="token-string">"guid"</span>,
+  <span class="token-string">"index"</span>:         <span class="token-num">0</span>,
+  <span class="token-string">"total"</span>:         <span class="token-num">4</span>,
+  <span class="token-string">"sessionId"</span>:     <span class="token-string">"guid"</span>
+}</code></pre>
+
+    <h3>Path Base</h3>
+    <p>
+      In non-development environments, <code>app.UsePathBase("/transcript")</code> is applied.
+      This enables the application to run as an IIS sub-application under
+      <code>https://yourserver/transcript/</code> without breaking static file paths or redirects.
+      All SSE URLs computed in endpoints are prefixed accordingly via the <code>sseBase</code> variable.
+    </p>
+  </section>
+
+  <!-- WHISPERSERVICE.CS -->
+  <section id="whisperservice-cs">
+    <div class="section-header">
+      <span class="section-number">05</span>
+      <h2>WhisperService.cs <span class="tag server">SERVER</span></h2>
+    </div>
+
+    <div class="file-card">
+      <div class="file-card-header">
+        <span class="file-badge cs">.cs</span>
+        <span class="file-path">Services/WhisperService.cs</span>
+      </div>
+      <div class="file-card-body">
+        <p class="file-purpose">
+          Singleton background service that manages a bounded channel queue of transcription requests,
+          spawns a configurable worker pool, orchestrates FFmpeg re-encoding, calls the Whisper API,
+          and publishes results back to clients via SSE. Implements <code>IAsyncDisposable</code> for
+          clean shutdown.
+        </p>
+        <ul class="resp-list">
+          <li>Maintains a <code>Channel&lt;TranscriptionRequest&gt;</code> as a bounded work queue (capacity = <code>MaxConcurrent × 2</code>).</li>
+          <li>Spawns <code>MaxConcurrent</code> background workers, stores their <code>Task[]</code> for clean disposal.</li>
+          <li>Writes raw chunk bytes to a temp file at enqueue time — <code>byte[]</code> never enters the channel buffer.</li>
+          <li>Spawns FFmpeg as a child process, converting any input format to mono 16 kHz WAV on disk.</li>
+          <li>Streams the WAV file directly to Whisper via <code>FileStream</code> — no <code>byte[]</code> in managed heap.</li>
+          <li>Tracks multi-chunk sessions in a <code>ConcurrentDictionary</code>, assembles final text in order once all chunks complete.</li>
+          <li>Publishes progress and final HTML to subscribers via <code>TranscriptionStatusTracker</code>.</li>
+          <li>Properly unsubscribes SSE channels on all exit paths (success, error, session completion).</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Concurrency Model</h3>
+    <p>
+      The service uses a producer/consumer pattern. The HTTP controller is the producer;
+      worker tasks are consumers. The bounded channel applies back-pressure: if all workers are busy
+      and the buffer is full, <code>WriteAsync</code> on the producer side will await automatically.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Component</th><th>Type</th><th>Role</th></tr></thead>
+        <tbody>
+          <tr><td>_queue</td><td><code>Channel&lt;TranscriptionRequest&gt;</code></td><td>Bounded work queue. Capacity = MaxConcurrent × 2.</td></tr>
+          <tr><td>_workers</td><td><code>Task[]</code></td><td>Background consumers. Stored for graceful shutdown.</td></tr>
+          <tr><td>_sessions</td><td><code>ConcurrentDictionary&lt;Guid, TranscriptionSession&gt;</code></td><td>In-flight multi-chunk sessions. Keyed by sessionId.</td></tr>
+          <tr><td>_retryPolicy</td><td>Polly <code>IAsyncPolicy</code></td><td>Exponential backoff (3 retries) on <code>HttpRequestException</code>.</td></tr>
+          <tr><td>_cts</td><td><code>CancellationTokenSource</code></td><td>Signals worker cancellation on disposal.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>FFmpeg Integration</h3>
+    <p>
+      <code>ReencodeWithFfmpegAsync()</code> converts a raw chunk (any format) to a frame-aligned
+      mono 16 kHz WAV. This step is critical: MP3 and WebM files sliced at arbitrary byte offsets
+      produce invalid frame boundaries that cause Whisper to return HTTP 500 errors. FFmpeg repairs
+      the stream and outputs a clean WAV regardless of input container.
+    </p>
+
+    <pre><code>ffmpeg -y -i "<span class="token-string">inputPath</span>" -ar <span class="token-num">16000</span> -ac <span class="token-num">1</span> -f wav "<span class="token-string">outputPath</span>"</code></pre>
+
+    <div class="callout warning">
+      <span class="callout-icon">⚠</span>
+      <div class="callout-body">
+        <strong>stderr before WaitForExitAsync.</strong> <code>StandardError</code> is read to completion
+        before calling <code>WaitForExitAsync()</code>. This is intentional: if the process fills its
+        stderr pipe buffer and no one is reading it, the process blocks — causing a deadlock with
+        <code>WaitForExitAsync</code>. Reversing the order would hang on any verbose FFmpeg output.
+      </div>
+    </div>
+
+    <h3>Memory Strategy</h3>
+    <p>
+      The key design goal is to never hold full audio data as a managed <code>byte[]</code>
+      in the .NET heap. The flow is entirely disk-based after the initial controller write:
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Stage</th><th>Storage</th><th>Lifetime</th></tr></thead>
+        <tbody>
+          <tr><td>EnqueueChunkAsync</td><td>Write to temp file, discard byte[]</td><td>Until ReencodeWithFfmpegAsync reads it</td></tr>
+          <tr><td>ReencodeWithFfmpegAsync</td><td>Input temp file → FFmpeg → output WAV temp file</td><td>Until Whisper POST completes</td></tr>
+          <tr><td>CallWhisperApiFromFileAsync</td><td>FileStream (no byte[] allocation)</td><td>Duration of HTTP POST</td></tr>
+          <tr><td>Cleanup (finally)</td><td>Both temp files deleted</td><td>Immediate after POST</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Session Assembly</h3>
+    <p>
+      Each chunk request carries an <code>Index</code> and is stored in <code>TranscriptionSession.Texts[]</code>
+      at the correct position. A <code>lock</code> on <code>session.Lock</code> protects the counter increment
+      and array write (no <code>await</code> inside the lock, so no async deadlock risk). Once
+      <code>CompletedCount == Total</code>, the texts are joined with spaces and published on the session SSE channel.
+    </p>
+
+    <h3>Disposal</h3>
+    <p>
+      <code>DisposeAsync()</code> completes the channel writer (signals workers to drain and exit),
+      cancels the <code>CancellationTokenSource</code>, then awaits all worker tasks with a 10-second
+      timeout. This ensures in-flight FFmpeg processes and Whisper calls are not orphaned on application shutdown.
+    </p>
+
+    <pre><code><span class="token-keyword">public async</span> <span class="token-type">ValueTask</span> <span class="token-fn">DisposeAsync</span>() {
+    _queue.Writer.<span class="token-fn">TryComplete</span>();
+    <span class="token-keyword">await</span> _cts.<span class="token-fn">CancelAsync</span>();
+    <span class="token-keyword">try</span> {
+        <span class="token-keyword">await</span> Task.<span class="token-fn">WhenAll</span>(_workers)
+            .<span class="token-fn">WaitAsync</span>(TimeSpan.<span class="token-fn">FromSeconds</span>(<span class="token-num">10</span>));
+    }
+    <span class="token-keyword">catch</span> (<span class="token-type">OperationCanceledException</span>) { <span class="token-comment">/* expected */</span> }
+    <span class="token-keyword">catch</span> (<span class="token-type">TimeoutException</span>) {
+        _logger.<span class="token-fn">LogWarning</span>(<span class="token-string">"WhisperService: forced shutdown after 10s timeout."</span>);
+    }
+    _cts.<span class="token-fn">Dispose</span>();
+}</code></pre>
+
+  </section>
+
+  <!-- TRANSCRIPTIONSTATUSTRACKER.CS -->
+  <section id="statustracker-cs">
+    <div class="section-header">
+      <span class="section-number">06</span>
+      <h2>TranscriptionStatusTracker.cs <span class="tag server">SERVER</span></h2>
+    </div>
+
+    <div class="file-card">
+      <div class="file-card-header">
+        <span class="file-badge cs">.cs</span>
+        <span class="file-path">Services/TranscriptionStatusTracker.cs</span>
+      </div>
+      <div class="file-card-body">
+        <p class="file-purpose">
+          Singleton in-memory pub/sub broker that connects background transcription workers
+          to SSE endpoint handlers. Each active SSE connection maps to one unbounded
+          <code>Channel&lt;string&gt;</code>. Workers write HTML payloads; the SSE endpoint
+          reads and forwards them to the browser.
+        </p>
+        <ul class="resp-list">
+          <li>Maintains a <code>ConcurrentDictionary&lt;Guid, Channel&lt;string&gt;&gt;</code> — one entry per active SSE subscription.</li>
+          <li><code>Subscribe(id)</code> — creates a new unbounded channel, registers it, returns the reader to the SSE endpoint.</li>
+          <li><code>NotifyUpdate(id, html)</code> — writes an HTML string to the channel identified by <code>id</code>. No-op if the id has no subscriber (client disconnected).</li>
+          <li><code>Unsubscribe(id)</code> — removes the channel and calls <code>TryComplete()</code> on the writer, which causes the SSE endpoint's <code>ReadAllAsync</code> loop to exit cleanly.</li>
+          <li><code>HasSubscriber(id)</code> — polled by <code>WhisperService.WaitForSubscriberAsync()</code> before sending the first update, ensuring the browser SSE connection is open before processing begins.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Channel Lifecycle</h3>
+    <p>
+      Every GUID that flows through the system — both <code>chunkId</code> and <code>sessionId</code>
+      — gets its own independent channel. The lifecycle is always:
+    </p>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-content"><strong>Subscribe</strong> — SSE endpoint calls <code>Subscribe(id)</code> when the browser opens the connection. Channel is created and the reader is held by the endpoint's <code>await foreach</code> loop.</div>
+      </div>
+      <hr class="flow-divider">
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-content"><strong>NotifyUpdate (n times)</strong> — <code>WhisperService</code> writes progress HTML as processing advances. Each write unblocks the <code>await foreach</code> in the SSE endpoint, which immediately flushes it to the browser.</div>
+      </div>
+      <hr class="flow-divider">
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-content"><strong>Unsubscribe</strong> — called by <code>WhisperService</code> after the final message, or by the SSE endpoint's <code>finally</code> block on client disconnect. <code>TryComplete()</code> closes the writer, which terminates the reader loop.</div>
+      </div>
+    </div>
+
+    <h3>Two Channel Types in Practice</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Channel keyed by</th><th>Lifetime</th><th>Written by</th><th>Read by</th><th>Closed when</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>chunkId</td>
+            <td>Short — one per chunk</td>
+            <td><code>WhisperService.ProcessChunkRequestAsync</code></td>
+            <td>SSE endpoint (per-chunk progress)</td>
+            <td><code>TraiterChunkTranscritAsync</code> after chunk final message</td>
+          </tr>
+          <tr>
+            <td>sessionId</td>
+            <td>Long — one per file upload</td>
+            <td><code>WhisperService.TraiterChunkTranscritAsync</code> (last chunk only)</td>
+            <td>SSE endpoint (session final text)</td>
+            <td><code>TraiterChunkTranscritAsync</code> after full text assembled</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Why Unbounded Channels</h3>
+    <p>
+      <code>Channel.CreateUnbounded&lt;string&gt;()</code> is used rather than bounded.
+      The SSE endpoint drains the channel as fast as the network allows, and workers write
+      infrequently (a handful of status strings per chunk). There is no realistic risk of
+      unbounded growth — each channel holds at most a few HTML strings before they are
+      consumed. A bounded channel would add complexity (back-pressure, write failures)
+      with no practical benefit here.
+    </p>
+
+    <div class="callout info">
+      <span class="callout-icon">ℹ</span>
+      <div class="callout-body">
+        <strong>Double Unsubscribe is safe.</strong> <code>ConcurrentDictionary.TryRemove</code>
+        is a no-op if the key is absent, and <code>Channel.Writer.TryComplete()</code> is
+        idempotent — calling it on an already-completed channel returns <code>false</code>
+        without throwing. Both the SSE endpoint <code>finally</code> block and
+        <code>WhisperService</code> call <code>Unsubscribe</code> independently; neither
+        will fault if the other runs first.
+      </div>
+    </div>
+
+    <pre><code><span class="token-comment">// Full implementation</span>
+<span class="token-keyword">public class</span> <span class="token-type">TranscriptionStatusTracker</span>
+{
+    <span class="token-keyword">private readonly</span> <span class="token-type">ConcurrentDictionary</span>&lt;<span class="token-type">Guid</span>, <span class="token-type">Channel</span>&lt;<span class="token-keyword">string</span>&gt;&gt; _streams = <span class="token-keyword">new</span>();
+
+    <span class="token-keyword">public</span> <span class="token-type">ChannelReader</span>&lt;<span class="token-keyword">string</span>&gt; <span class="token-fn">Subscribe</span>(<span class="token-type">Guid</span> id)
+    {
+        <span class="token-keyword">var</span> channel = Channel.<span class="token-fn">CreateUnbounded</span>&lt;<span class="token-keyword">string</span>&gt;();
+        _streams[id] = channel;
+        <span class="token-keyword">return</span> channel.Reader;
+    }
+
+    <span class="token-keyword">public async</span> <span class="token-type">Task</span> <span class="token-fn">NotifyUpdate</span>(<span class="token-type">Guid</span> id, <span class="token-keyword">string</span> html)
+    {
+        <span class="token-keyword">if</span> (_streams.<span class="token-fn">TryGetValue</span>(id, <span class="token-keyword">out var</span> channel))
+            <span class="token-keyword">await</span> channel.Writer.<span class="token-fn">WriteAsync</span>(html);
+    }
+
+    <span class="token-keyword">public void</span> <span class="token-fn">Unsubscribe</span>(<span class="token-type">Guid</span> id)
+    {
+        <span class="token-keyword">if</span> (_streams.<span class="token-fn">TryRemove</span>(id, <span class="token-keyword">out var</span> channel))
+            channel.Writer.<span class="token-fn">TryComplete</span>();
+    }
+
+    <span class="token-keyword">public bool</span> <span class="token-fn">HasSubscriber</span>(<span class="token-type">Guid</span> id) =&gt; _streams.<span class="token-fn">ContainsKey</span>(id);
+}</code></pre>
+
+  </section>
+
+  <!-- TRANSCRIPTIONRESULT.RAZOR -->
+  <section id="transcriptionresult-razor">
+    <div class="section-header">
+      <span class="section-number">07</span>
+      <h2>TranscriptionResult.razor <span class="tag ui">UI</span></h2>
+    </div>
+
+    <div class="file-card">
+      <div class="file-card-header">
+        <span class="file-badge razor">.razor</span>
+        <span class="file-path">Components/TranscriptionResult.razor</span>
+      </div>
+      <div class="file-card-body">
+        <p class="file-purpose">
+          Stateless Blazor component used exclusively for server-side HTML rendering.
+          It is never mounted in the browser — <code>WhisperService</code> uses <code>HtmlRenderer</code>
+          to render it to an HTML string, which is then emitted as an SSE payload.
+        </p>
+        <ul class="resp-list">
+          <li>Accepts three parameters: <code>Message</code> (string), <code>IsError</code> (bool), <code>IsProcessing</code> (bool).</li>
+          <li>Renders a processing state with a spinner animation when <code>IsProcessing</code> is true.</li>
+          <li>Renders an error state with a warning icon when <code>IsError</code> is true.</li>
+          <li>Detects the keyword <code>"Conversion"</code> in the message to show a purple 🔧 icon during the FFmpeg re-encoding step.</li>
+          <li>Renders the final transcribed text as formatted output when both flags are false.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">ℹ</span>
+      <div class="callout-body">
+        <strong>Server-side rendering only.</strong> This component is rendered to a raw HTML string via
+        <code>renderer.RenderComponentAsync&lt;TranscriptionResult&gt;()</code> inside
+        <code>WhisperService.SendUpdate()</code>. The resulting HTML is sent as an SSE
+        <code>data:</code> payload. The client sets <code>output.innerHTML = html</code> on receipt.
+        No Blazor SignalR circuit is involved.
+      </div>
+    </div>
+  </section>
+
+  <!-- APPSETTINGS -->
+  <section id="appsettings">
+    <div class="section-header">
+      <span class="section-number">08</span>
+      <h2>appsettings.json <span class="tag config">CONFIG</span></h2>
+    </div>
+
+    <div class="file-card">
+      <div class="file-card-header">
+        <span class="file-badge json">.json</span>
+        <span class="file-path">appsettings.json (project root)</span>
+      </div>
+      <div class="file-card-body">
+        <p class="file-purpose">
+          Application configuration. Contains all runtime-tunable parameters.
+          Secret values (API keys) must never appear here — use ASP.NET Core User Secrets
+          in development and environment variables in production.
+        </p>
+      </div>
+    </div>
+
+    <pre><code>{
+  <span class="token-string">"Logging"</span>: {
+    <span class="token-string">"LogLevel"</span>: {
+      <span class="token-string">"Default"</span>:              <span class="token-string">"Information"</span>,
+      <span class="token-string">"Microsoft.AspNetCore"</span>: <span class="token-string">"Warning"</span>
+    }
+  },
+  <span class="token-string">"AllowedHosts"</span>: <span class="token-string">"*"</span>,
+  <span class="token-string">"OpenAI"</span>: {
+    <span class="token-string">"ApiTranscript"</span>: <span class="token-string">"https://albert.api.etalab.gouv.fr"</span>,
+    <span class="token-string">"ApiKey"</span>:        <span class="token-string">""</span>          <span class="token-comment">// ← injected at runtime, never stored here</span>
+  },
+  <span class="token-string">"Proxy"</span>: {
+    <span class="token-string">"UseProxy"</span>: <span class="token-keyword">false</span>,
+    <span class="token-string">"Url"</span>:      <span class="token-string">"http://100.78.64.201:8003/"</span>
+  },
+  <span class="token-string">"Whisper"</span>: {
+    <span class="token-string">"MaxConcurrent"</span>: <span class="token-num">3</span>,
+    <span class="token-string">"FfmpegPath"</span>:    <span class="token-string">"ffmpeg"</span>,    <span class="token-comment">// full path on Windows if not in PATH</span>
+    <span class="token-string">"Model"</span>:         <span class="token-string">"openai/whisper-large-v3"</span>,
+    <span class="token-string">"Language"</span>:      <span class="token-string">"fr"</span>
+  }
+}</code></pre>
+
+    <h3>Configuration Keys Reference</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Key</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>OpenAI:ApiTranscript</td><td>—</td><td>Base URL of the Whisper-compatible API endpoint.</td></tr>
+          <tr><td>OpenAI:ApiKey</td><td>""</td><td>Bearer token. Inject via User Secrets or environment variable only.</td></tr>
+          <tr><td>Proxy:UseProxy</td><td>false</td><td>Whether to route Whisper API calls through the configured HTTP proxy.</td></tr>
+          <tr><td>Proxy:Url</td><td>—</td><td>Proxy URL used when UseProxy is true.</td></tr>
+          <tr><td>Whisper:MaxConcurrent</td><td>3</td><td>Number of parallel background workers consuming the transcription queue.</td></tr>
+          <tr><td>Whisper:FfmpegPath</td><td>"ffmpeg"</td><td>Path to the FFmpeg executable. Set to a full path on Windows Server if ffmpeg is not in PATH.</td></tr>
+          <tr><td>Whisper:Model</td><td>"openai/whisper-large-v3"</td><td>Model identifier sent in the Whisper API multipart payload.</td></tr>
+          <tr><td>Whisper:Language</td><td>"fr"</td><td>Language hint sent to Whisper. Reduces hallucinations on monolingual audio.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- SECURITY -->
+  <section id="security">
+    <div class="section-header">
+      <span class="section-number">09</span>
+      <h2>Security</h2>
+    </div>
+
+    <div class="secret-warning">
+      <h4>⚠ Never commit API keys to source control</h4>
+      <p>The <code>OpenAI:ApiKey</code> value must never appear in <code>appsettings.json</code>
+      or any file tracked by git. If a key has been committed, rotate it immediately — git history
+      retains it even after removal.</p>
+      <p>Use <strong>ASP.NET Core User Secrets</strong> in development and
+      <strong>environment variables</strong> in production.</p>
+    </div>
+
+    <h3>Development (User Secrets)</h3>
+    <pre><code>dotnet user-secrets <span class="token-fn">set</span> <span class="token-string">"OpenAI:ApiKey"</span> <span class="token-string">"sk-your-key-here"</span></code></pre>
+    <p>
+      User secrets are stored in <code>%APPDATA%\Microsoft\UserSecrets\&lt;userSecretsId&gt;\secrets.json</code>
+      on Windows — outside the project directory and therefore outside git.
+    </p>
+
+    <h3>Production (Environment Variables)</h3>
+    <pre><code><span class="token-comment"># Windows Server — double underscore = section separator</span>
+<span class="token-keyword">set</span> OPENAI__APIKEY=sk-your-key-here
+
+<span class="token-comment"># or in IIS Application Pool → Environment Variables</span>
+OPENAI__APIKEY = sk-your-key-here</code></pre>
+    <p>
+      ASP.NET Core's configuration system merges environment variables over <code>appsettings.json</code>
+      automatically. The double underscore (<code>__</code>) maps to the colon (<code>:</code>)
+      section separator in JSON keys.
+    </p>
+  </section>
+
+  <!-- IIS -->
+  <section id="iis">
+    <div class="section-header">
+      <span class="section-number">10</span>
+      <h2>IIS / web.config</h2>
+    </div>
+
+    <p>
+      IIS applies a default request size limit of 30 MB (or lower depending on configuration).
+      Since raw audio chunks can reach 10 MB and multipart overhead adds a small margin,
+      the limit must be explicitly raised to at least 15 MB.
+    </p>
+
+    <pre><code><span class="token-comment">&lt;!-- web.config -- add or merge into system.webServer --&gt;</span>
+&lt;<span class="token-keyword">system.webServer</span>&gt;
+  &lt;<span class="token-keyword">security</span>&gt;
+    &lt;<span class="token-keyword">requestFiltering</span>&gt;
+      &lt;<span class="token-keyword">requestLimits</span> maxAllowedContentLength=<span class="token-string">"15728640"</span> /&gt;
+    &lt;/<span class="token-keyword">requestFiltering</span>&gt;
+  &lt;/<span class="token-keyword">security</span>&gt;
+&lt;/<span class="token-keyword">system.webServer</span>&gt;</code></pre>
+
+    <div class="callout info">
+      <span class="callout-icon">ℹ</span>
+      <div class="callout-body">
+        <strong>15728640 = 15 MB.</strong> Chunks are 10 MB raw. The 15 MB limit provides 5 MB of
+        headroom for multipart form boundaries and metadata. The JS <code>CHUNK_LIMIT</code> threshold
+        (12 MB) and <code>CHUNK_SIZE</code> (10 MB) are both below this ceiling.
+      </div>
+    </div>
+
+    <h3>FFmpeg Installation on Windows Server</h3>
+    <pre><code><span class="token-comment"># Option 1 — winget</span>
+winget install ffmpeg
+
+<span class="token-comment"># Option 2 — Chocolatey</span>
+choco install ffmpeg
+
+<span class="token-comment"># Option 3 — manual</span>
+<span class="token-comment"># Place ffmpeg.exe anywhere and set the full path in appsettings.json:</span>
+<span class="token-string">"Whisper:FfmpegPath"</span>: <span class="token-string">"C:\\tools\\ffmpeg\\bin\\ffmpeg.exe"</span></code></pre>
+  </section>
+
+  <!-- CONSTANTS -->
+  <section id="constants">
+    <div class="section-header">
+      <span class="section-number">11</span>
+      <h2>Constants &amp; Size Budget</h2>
+    </div>
+
+    <p>All size-related constants must stay within the following budget to avoid HTTP 413 errors from IIS.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Constant</th><th>Location</th><th>Value</th><th>Constraint</th></tr></thead>
+        <tbody>
+          <tr><td>CHUNK_SIZE</td><td>pipelinechunk.js</td><td>10 MB</td><td>Must be &lt; IIS maxAllowedContentLength (15 MB)</td></tr>
+          <tr><td>CHUNK_LIMIT</td><td>pipelinechunk.js</td><td>12 MB</td><td>Must be &lt; IIS limit. Files above this trigger chunking.</td></tr>
+          <tr><td>maxAllowedContentLength</td><td>web.config</td><td>15 MB</td><td>Must be &gt; CHUNK_SIZE + multipart overhead</td></tr>
+          <tr><td>Whisper API limit</td><td>external</td><td>25 MB</td><td>Re-encoded WAV output (mono 16kHz) for 10MB raw chunk is ~3–4 MB — well within limit</td></tr>
+          <tr><td>MaxConcurrent</td><td>appsettings.json</td><td>3</td><td>Tune to server CPU and Whisper API rate limits</td></tr>
+          <tr><td>Channel capacity</td><td>WhisperService.cs</td><td>MaxConcurrent × 2</td><td>Back-pressure buffer. Writer blocks when full.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- DEPENDENCIES -->
+  <section id="dependencies">
+    <div class="section-header">
+      <span class="section-number">12</span>
+      <h2>Dependencies</h2>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Dependency</th><th>Type</th><th>Role</th></tr></thead>
+        <tbody>
+          <tr><td>Microsoft.AspNetCore</td><td>Framework</td><td>HTTP pipeline, DI, configuration, Blazor Server.</td></tr>
+          <tr><td>Microsoft.AspNetCore.Components.Web</td><td>Framework</td><td><code>HtmlRenderer</code> for server-side Razor component rendering.</td></tr>
+          <tr><td>Polly</td><td>NuGet</td><td>Retry policy with exponential backoff on Whisper HTTP calls.</td></tr>
+          <tr><td>System.Threading.Channels</td><td>BCL</td><td>Bounded channel as the transcription work queue.</td></tr>
+          <tr><td>System.Text.Json</td><td>BCL</td><td>Parsing the Whisper API JSON response.</td></tr>
+          <tr><td>FFmpeg</td><td>System binary</td><td>Re-encodes raw audio chunks to mono 16kHz WAV. Must be installed separately on the server.</td></tr>
+          <tr><td>HTMX</td><td>JS (CDN)</td><td>Handles small file form submissions as progressive enhancement. No dependency for the chunk pipeline.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <span>TranscriptAudio — Developer Documentation</span>
+    <span>2026-03-18 · Internal use</span>
+  </footer>
+
+</main>
+</div>
+
+<script>
+  // Highlight active nav link on scroll
+  const sections = document.querySelectorAll('section[id], div[id]');
+  const navLinks  = document.querySelectorAll('nav a[href^="#"]');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const active = document.querySelector(`nav a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

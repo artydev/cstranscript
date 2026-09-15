@@ -1,0 +1,205 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Méthodologie d'Exploitation - Whisper RAP</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #2563eb;
+            --bg-light: #f1f5f9;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.6;
+            color: #334155;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px;
+            background: var(--bg-light);
+        }
+
+        .doc-container {
+            background: white;
+            padding: 50px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        header {
+            border-bottom: 3px solid var(--primary);
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2.4rem;
+            margin: 0;
+        }
+
+        .theme-section {
+            margin-bottom: 50px;
+            padding: 30px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+            .theme-section h2 {
+                color: var(--secondary);
+                margin-top: 0;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+
+                .theme-section h2 svg {
+                    width: 32px;
+                    fill: var(--secondary);
+                }
+
+        h3 {
+            color: var(--primary);
+            border-left: 4px solid var(--secondary);
+            padding-left: 15px;
+            margin-top: 25px;
+        }
+
+        .method-step {
+            margin-left: 20px;
+            border-left: 2px dashed var(--border);
+            padding-left: 25px;
+            position: relative;
+        }
+
+            .method-step::before {
+                content: "•";
+                position: absolute;
+                left: -8px;
+                top: 0;
+                font-size: 24px;
+                color: var(--secondary);
+                background: white;
+                height: 20px;
+            }
+
+        code {
+            background: #f8fafc;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            color: #be185d;
+        }
+
+        .badge {
+            background: #dcfce7;
+            color: #166534;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .tech-stack {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            margin: 15px 0;
+            border: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="doc-container">
+        <header>
+            <h1>Méthodologie : Export, Résumé & Partage</h1>
+            <p>Guide de mise en œuvre pour l'exploitation des transcriptions Whisper RAP</p>
+        </header>
+
+        <!-- SECTION 1: EXPORT -->
+        <section class="theme-section">
+            <h2>
+                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" /></svg>
+                1. Axe Exportation Multi-formats
+            </h2>
+            <p>L'objectif est de permettre à l'utilisateur de récupérer la transcription dans son environnement de travail habituel (Word, PDF, ou Texte brut).</p>
+
+            <h3>Méthodologie de mise en œuvre :</h3>
+            <div class="method-step">
+                <strong>Génération "On-the-fly" :</strong> Utilisation de bibliothèques .NET spécialisées.
+                <ul>
+                    <li><strong>Word (.docx) :</strong> Utilisation de <code>DocumentFormat.OpenXml</code> pour créer un document structuré sans nécessiter Word sur le serveur.</li>
+                    <li><strong>PDF :</strong> Utilisation de <code>QuestPDF</code> pour une mise en page fluide et moderne.</li>
+                </ul>
+            </div>
+            <div class="method-step">
+                <strong>Intégration HTMX :</strong> Dès que la transcription est terminée (état <code>IsProcessing = false</code>), le composant <code>TranscriptionResult</code> affiche une barre d'outils d'exportation.
+                <br><code>&lt;button hx-get="/export/docx/{id}" hx-indicator="..."&gt;Télécharger Word&lt;/button&gt;</code>
+            </div>
+            <div class="method-step">
+                <strong>Sécurité des téléchargements :</strong> Le fichier est généré en mémoire et renvoyé via un <code>FileStreamResult</code>, garantissant qu'aucun fichier sensible ne stagne inutilement sur le disque après l'export.
+            </div>
+            <div class="tech-stack">
+                <strong>Stack recommandée :</strong> QuestPDF (PDF), DocumentFormat.OpenXml (Word), FileStreamResult (.NET).
+            </div>
+        </section>
+
+        <!-- SECTION 2: RÉSUMÉ -->
+        <section class="theme-section">
+            <h2>
+                <svg viewBox="0 0 24 24"><path d="M21 7L9 19L3.5 13.5L4.91 12.09L9 16.17L19.59 5.59L21 7Z" /></svg>
+                2. Axe Résumé Automatique (IA)
+            </h2>
+            <p>Transformer une transcription brute de 30 minutes en un compte-rendu structuré en 10 secondes grâce aux LLM souverains d'Albert.</p>
+
+            <h3>Méthodologie de mise en œuvre :</h3>
+            <div class="method-step">
+                <strong>Chaînage d'IA (Prompt Engineering) :</strong> Envoi du texte transcrit vers l'API <code>Chat/Completions</code> d'Albert (modèle Llama ou Mistral) avec un prompt système spécifique :
+                <br><em>"Tu es un assistant administratif. Résume cette transcription en points clés et actions à entreprendre."</em>
+            </div>
+            <div class="method-step">
+                <strong>Traitement asynchrone :</strong> Le résumé est traité comme une seconde tâche d'arrière-plan. On réutilise le même mécanisme de <code>WhisperService</code> (Channel + SSE) pour afficher la progression du résumé.
+            </div>
+            <div class="method-step">
+                <strong>Structuration Markdown :</strong> L'IA renvoie le résumé en Markdown, que l'on transforme en HTML via une bibliothèque comme <code>Markdig</code> avant de l'afficher dans le composant Razor.
+            </div>
+            <div class="tech-stack">
+                <strong>Stack recommandée :</strong> Albert API (Llama-3), Markdig (Markdown to HTML), System.Threading.Channels.
+            </div>
+        </section>
+
+        <!-- SECTION 3: PARTAGE -->
+        <section class="theme-section">
+            <h2>
+                <svg viewBox="0 0 24 24"><path d="M18 16.08C17.24 16.08 16.56 16.38 16.04 16.85L8.91 12.7C8.96 12.47 9 12.24 9 12C9 11.76 8.96 11.53 8.91 11.3L15.96 7.19C16.5 7.69 17.21 8 18 8C19.66 8 21 6.66 21 5C21 3.34 19.66 2 18 2C16.34 2 15 3.34 15 5C15 5.24 15.04 5.47 15.09 5.7L8.04 9.81C7.5 9.31 6.79 9 6 9C4.34 9 3 10.34 3 12C3 13.66 4.34 15 6 15C6.79 15 7.5 14.69 8.04 14.19L15.16 18.34C15.11 18.55 15.08 18.77 15.08 19C15.08 20.61 16.39 21.91 18 21.91C19.61 21.91 20.92 20.61 20.92 19C20.92 17.39 19.61 16.08 18 16.08Z" /></svg>
+                3. Axe Partage Sécurisé
+            </h2>
+            <p>Faciliter la collaboration entre agents tout en garantissant que les données sensibles ne quittent pas le périmètre de confiance.</p>
+
+            <h3>Méthodologie de mise en œuvre :</h3>
+            <div class="method-step">
+                <strong>Liens Ephémères (Signed URLs) :</strong> Génération d'une URL de consultation unique chiffrée avec une clé secrète serveur et une date d'expiration (ex: 24h).
+                <br><code>/share/view?token=ax78...&exp=1708...</code>
+            </div>
+            <div class="method-step">
+                <strong>Intégration Messagerie (Tchap) :</strong> Utilisation d'un endpoint <code>SMTP</code> ou <code>API Tchap</code> pour envoyer directement le résumé à un collègue. HTMX permet d'afficher un mini-formulaire "Envoyer par mail" directement sous le résultat.
+            </div>
+            <div class="method-step">
+                <strong>Stockage froid temporaire :</strong> Pour le partage, les transcriptions sont déplacées du dossier <code>Temp</code> vers une base de données chiffrée ou un stockage objet (S3) avec une politique de suppression automatique (TTL).
+            </div>
+            <div class="tech-stack">
+                <strong>Stack recommandée :</strong> Microsoft Data Protection API (Tokens), MailKit (Email), Redis ou PostgreSQL (Stockage temporaire).
+            </div>
+        </section>
+
+        <footer style="text-align: center; margin-top: 50px; padding-top: 20px; border-top: 1px solid #e2e8f0; color: #94a3b8;">
+            &copy; 2024 Whisper RAP - Architecture Digitale Souveraine
+        </footer>
+    </div>
+
+</body>
+</html>

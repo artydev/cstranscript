@@ -1,0 +1,109 @@
+﻿@page "/transcribe-audio-form"
+
+
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Env
+
+@{
+    // Path configuration for Post
+    var isLocalhost = Env.EnvironmentName == "Localhost";
+    var baseUrl = isLocalhost ? "" : "/transcript";
+
+}
+
+<div class="tf-root">
+    <div class="tf-card">
+        <div class="tf-header">
+            <div style="display:flex;align-items:center;gap:1rem;">
+                <div class="tf-wave" aria-hidden="true">
+                    <span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span>
+                </div>
+                <h2 class="tf-title">Transcription Audio</h2>
+            </div>
+        </div>
+
+        <div class="tf-body">
+            <div>
+                <div class="tf-subtitle" id="file-name-display"></div>
+
+                <div class="tf-panel tf-panel--form">
+
+                    <!--
+                        Fichiers < 12 MB  : HTMX soumet normalement → /transcribe-audio
+                        Fichiers ≥ 12 MB  : JS intercepte, découpe via Blob.slice(),
+                                            envoie chunk par chunk → /transcribe-chunk.
+                                            La recombinaison est faite côté serveur.
+                    -->
+                    <form id="tf-form"
+                          hx-post="@baseUrl/transcribe-audio"
+                          hx-encoding="multipart/form-data"
+                          hx-target="#output"
+                          hx-swap="innerHTML"
+                          hx-indicator="#upload-loading">
+
+                        <div class="tf-drop">
+                            <input type="file"
+                                   id="tf-file-input"
+                                   name="AudioFile"
+                                   accept="audio/mpeg, audio/wav, audio/webm, video/webm"
+                                   required />
+                            <svg viewBox="0 0 24 24" fill="none" width="24px"
+                                 stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="17 8 12 3 7 8" />
+                                <line x1="12" y1="3" x2="12" y2="15" />
+                            </svg>
+                            <p class="tf-drop-label">
+                                <strong>Sélectionnez ou glissez un fichier ici</strong>
+                            </p>
+                            <div class="tf-formats">
+                                <span class="tf-fmt">.mp3</span>
+                                <span class="tf-fmt">.wav</span>
+                                <span class="tf-fmt">.webm</span>
+                            </div>
+                        </div>
+
+                        <button class="tf-btn" type="submit" id="tf-submit-btn">
+                            Lancer la transcription
+                        </button>
+                    </form>
+
+                    <!-- Indicateur upload fichier complet (HTMX) -->
+                    <div id="upload-loading" class="tf-loading htmx-indicator">
+                        <div class="tf-spinner"><span></span><span></span></div>
+                        Envoi du fichier en cours...
+                    </div>
+
+                    <!-- Indicateur pipeline chunk (JS) -->
+                    <div id="chunk-loading" class="tf-loading">
+                        <div class="tf-spinner"><span></span><span></span></div>
+                        <span id="chunk-progress-label">Préparation des chunks...</span>
+                        <progress id="chunk-progress" value="0" max="100"
+                                  style="width:100%;margin-top:.5rem;"></progress>
+                    </div>
+
+                    <!-- Audio recorder -->
+                    <div hx-get="@baseUrl/transcribe-audio-recorder"
+                         hx-trigger="load"
+                         hx-swap="outerHTML">
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="tf-vdivider"></div>
+
+            <!-- RIGHT : Résultat live -->
+            <div class="tf-panel tf-panel--output">
+                <div id="output">
+                    <p style="color:#666;font-style:italic;text-align:center;">
+                        Le résultat s'affichera ici.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="baseurl" data-baseurl="@baseUrl"></div>
+<script src="./js/pipelinechunk.js" defer></script>

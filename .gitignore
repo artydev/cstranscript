@@ -1,0 +1,17 @@
+# Build results
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+
+# Secrets / local config (contains API keys)
+appsettings.json
+
+# Agent working files
+agent_memory.json
+analyse.json
+
+# Large binaries
+ffmpeg.exe

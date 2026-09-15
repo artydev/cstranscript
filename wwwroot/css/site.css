@@ -1,0 +1,489 @@
+/* ─────────────────────────────────────────────────────────────
+   TranscriptAudio — Light Theme (DSFR colors applied)
+   Clean full-height split layout with working HTMX loading
+──────────────────────────────────────────────────────────────── */
+
+
+/* ── Imports ───────────────────────────────────────────────── */
+
+
+
+
+/* ── Reset ─────────────────────────────────────────────────── */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+/* ── Design Tokens ─────────────────────────────────────────── */
+
+:root {
+    /* DSFR colour palette */
+    --bg: #f6f6f6;                     /* background */
+    --surface: #ffffff;                /* main surface */
+    --surface-2: #f6f6f6;              /* secondary surface */
+    --border: #e5e5e5;                 /* border colour */
+    --text: #161616;                   /* primary text */
+    --text-muted: #666666;             /* muted text */
+    --accent: #000091;                 /* DSFR blue‑france */
+    --accent-dim: rgba(0, 0, 145, 0.08);
+    --success: #18753c;                /* DSFR success green */
+    --error: #e1000f;                  /* DSFR error red */
+    --error-bg: rgba(225, 0, 15, 0.07);
+    --mono: 'IBM Plex Mono', monospace;
+    --display: 'Playfair Display', Georgia, serif;
+    --radius: 0;
+    --radius-sm: 0;
+    --shadow: 0 24px 64px rgba(60, 50, 30, 0.12), 0 4px 16px rgba(60, 50, 30, 0.06);
+    --ease: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    /* DSFR typography variable */
+    --dsfr-font-family: "Marianne", Arial, sans-serif;
+}
+
+
+/* ── Base Layout & Typography ─────────────────────────────── */
+
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    color: var(--text);
+    /* Use DSFR base font */
+    font-family: var(--dsfr-font-family);
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+}
+
+    /* Subtle warm paper texture */
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image: linear-gradient(rgba(0, 0, 145, 0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 145, 0.018) 1px, transparent 1px);
+        background-size: 2px 2px;
+        pointer-events: none;
+    }
+
+/* ── Layout Structure ─────────────────────────────────────── */
+
+.page-wrapper {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 1.25rem;
+}
+
+.tf-root {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.tf-card {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    animation: card-in 0.35s ease;
+}
+
+@keyframes card-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* ── Header ───────────────────────────────────────────────── */
+
+.tf-header {
+    flex-shrink: 0;
+    padding: 1.75rem 2.5rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(to right, var(--surface), var(--surface-2));
+}
+
+.tf-title {
+    font-family: var(--display);
+    font-size: clamp(1rem, 2vw, 1.4rem);
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+}
+
+.tf-subtitle {
+    font-family: var(--mono);
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--text-muted);
+    min-height: 1.1em;
+    letter-spacing: -0.01em;
+    position: relative !important;
+    top: 2rem;
+}
+
+.tf-formats {
+    color: var(--accent);
+}
+
+/* ── Body Split Layout ────────────────────────────────────── */
+
+.tf-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    overflow: hidden;
+}
+
+.tf-vdivider {
+    width: 1px;
+    background: var(--border);
+}
+
+/* ── Panels ───────────────────────────────────────────────── */
+
+.tf-panel--form {
+    flex: 0 0 320px;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    overflow-y: auto;
+    background: var(--surface);
+}
+
+.tf-panel--output {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 2.5rem;
+    overflow-y: auto;
+    background: var(--surface-2);
+}
+
+/* Shared scrollbar style */
+.tf-panel--form,
+.tf-panel--output,
+.tr-text {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+}
+
+
+/* ── File Name States ─────────────────────────────────────── */
+
+#file-name-display {
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: 0.85rem;
+    text-align: center;
+    margin-bottom: 0.8rem;
+    min-height: 1em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color var(--ease), opacity var(--ease);
+}
+
+    #file-name-display.file-state-ready {
+        color: var(--accent);
+        opacity: 1;
+    }
+
+    #file-name-display.file-state-uploading {
+        color: var(--accent);
+        opacity: 0.6;
+    }
+
+    #file-name-display.file-state-queued {
+        color: var(--success);
+        opacity: 1;
+    }
+
+    #file-name-display.file-state-error {
+        color: var(--error);
+        opacity: 1;
+    }
+
+
+/* ── Drop Zone ────────────────────────────────────────────── */
+
+.tf-drop {
+    position: relative;
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 1.75rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color var(--ease), background var(--ease), box-shadow var(--ease);
+    margin-bottom: 1rem;
+    background: var(--surface-2);
+}
+
+    .tf-drop:hover,
+    .tf-drop:focus-within {
+        border-color: var(--accent);
+        background: var(--accent-dim);
+        box-shadow: 0 0 0 4px rgba(0, 0, 145, 0.06);
+    }
+
+    .tf-drop input[type="file"] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+.tf-drop-label {
+    color: var(--accent);
+    font-weight: 400;
+    font-family: var(--mono);
+}
+
+
+/* ── Button ───────────────────────────────────────────────── */
+
+.tf-btn {
+    margin-top: auto;
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    background: var(--accent);
+    color: #ffffff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: arial;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+  
+}
+
+    .tf-btn:hover:not(:disabled) {
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(0, 0, 145, 0.28);
+        background: var(--accent);
+    }
+
+    .tf-btn:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+    }
+
+    .tf-btn:focus {
+        background: red;
+    }
+
+
+/* ── Loading Indicator ────────────────────────────────────── */
+
+.tf-loading {
+    display: none;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding: 0.7rem 1rem;
+    background: var(--accent-dim);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    border: 1px solid rgba(0, 0, 145, 0.12);
+}
+
+
+.tf-loading-message {
+    text-align: center;
+}
+
+.status {
+    font-size: 32px !important;
+}
+
+.htmx-request .tf-loading {
+    display: flex;
+}
+
+
+/* Spinner */
+
+.tf-spinner {
+    display: flex;
+    gap: 4px;
+}
+
+    .tf-spinner span {
+        width: 3px;
+        height: 14px;
+        border-radius: 2px;
+        background: var(--accent);
+        animation: spin-bar 1s ease-in-out infinite;
+    }
+
+        .tf-spinner span:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .tf-spinner span:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .tf-spinner span:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+
+@keyframes spin-bar {
+    0%, 100% {
+        transform: scaleY(0.4);
+        opacity: 0.3;
+    }
+
+    50% {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+}
+
+
+/* ── Output & Error ───────────────────────────────────────── */
+
+.tr-text {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    line-height: 1.65;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1.25rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+    box-shadow: 0 2px 8px rgba(60, 50, 30, 0.05);
+}
+
+.tr-error {
+    font-family: var(--mono);
+    color: var(--error);
+    background: var(--error-bg);
+    border: 1px solid rgba(225, 0, 15, 0.18);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+
+/* ── Wave Animation ───────────────────────────────────────── */
+
+.tf-wave {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 30px;
+}
+
+    .tf-wave span {
+        display: block;
+        width: 2px;
+        border-radius: 2px;
+        background: var(--accent);
+        transform-origin: bottom;
+        animation: wave-flow 2.5s ease-in-out infinite;
+    }
+
+        .tf-wave span:nth-child(1) {
+            height: 8px;
+            animation-delay: 0s;
+        }
+
+        .tf-wave span:nth-child(2) {
+            height: 12px;
+            animation-delay: 0.1s;
+        }
+
+        .tf-wave span:nth-child(3) {
+            height: 18px;
+            animation-delay: 0.2s;
+        }
+
+        .tf-wave span:nth-child(4) {
+            height: 24px;
+            animation-delay: 0.3s;
+        }
+
+        .tf-wave span:nth-child(5) {
+            height: 18px;
+            animation-delay: 0.4s;
+        }
+
+        .tf-wave span:nth-child(6) {
+            height: 12px;
+            animation-delay: 0.5s;
+        }
+
+        .tf-wave span:nth-child(7) {
+            height: 8px;
+            animation-delay: 0.6s;
+        }
+
+@keyframes wave-flow {
+    0%, 100% {
+        transform: scaleY(1);
+        opacity: 0.35;
+    }
+
+    50% {
+        transform: scaleY(1.6);
+        opacity: 1;
+    }
+}
+
+
+/* ── Responsive ───────────────────────────────────────────── */
+
+@media (max-width: 680px) {
+
+    html, body {
+        overflow: auto;
+        height: auto;
+    }
+
+    .tf-body {
+        flex-direction: column;
+    }
+
+    .tf-vdivider {
+        width: auto;
+        height: 1px;
+    }
+
+    .tf-panel--form,
+    .tf-panel--output {
+        padding: 1.5rem;
+    }
+}

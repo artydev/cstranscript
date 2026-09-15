@@ -1,0 +1,15 @@
+﻿@* Components/TranscriptionSseBridge.razor *@
+
+<div hx-ext="sse" sse-connect="@SseUrl" sse-swap="message">
+    <div class="tf-loading-view" style="padding: 2rem; text-align: center;">
+        <div class="tf-spinner"></div>
+        <p class="tf-pulse" style="margin-top: 1rem;">@Message</p>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string SseUrl { get; set; } = default!;
+    [Parameter] public string Message { get; set; } = "Fichier reçu. Connexion au flux de traitement...";
+}
+
+

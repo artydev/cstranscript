@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Transcription audio</title>
+
+    <!--
+        Base de l'API.
+        Laisser vide  -> l'URL est déduite du chemin de la page
+                         (/index.html -> "", /transcript/index.html -> "/transcript").
+        Sinon, forcer une valeur, ex. content="/transcript" ou "https://api.example.fr".
+    -->
+    <meta name="api-base" content="" />
+
+    <link rel="icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.11.2/dist/dsfr.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.11.2/dist/utility/utility.min.css" />
+    <link rel="stylesheet" href="./css/site.css" />
+    <link rel="stylesheet" href="./css/audio-explorer.css" />
+    <link rel="stylesheet" href="./css/transcription.css" />
+</head>
+<body>
+
+    <div class="tf-root">
+        <div class="tf-card">
+
+            <div class="tf-header">
+                <div class="tf-header-inner">
+                    <div class="tf-wave" aria-hidden="true">
+                        <span></span><span></span><span></span><span></span>
+                        <span></span><span></span><span></span>
+                    </div>
+                    <h2 class="tf-title">Transcription audio</h2>
+                </div>
+            </div>
+
+            <div class="tf-body">
+
+                <!-- ── GAUCHE : dépôt du fichier ──────────────────────────── -->
+                <div>
+                    <div class="tf-subtitle" id="file-name-display"></div>
+
+                    <div class="tf-panel tf-panel--form">
+
+                        <!--
+                            < 12 Mo : envoi direct       -> POST /transcribe-audio
+                            ≥ 12 Mo : découpe Blob.slice -> POST /transcribe-chunk (n fois)
+                                                            recombinaison côté serveur
+                        -->
+                        <form id="tf-form" novalidate>
+                            <div class="tf-drop" id="tf-drop">
+                                <input type="file"
+                                       id="tf-file-input"
+                                       name="AudioFile"
+                                       accept="audio/mpeg, audio/wav, audio/webm, video/webm"
+                                       required />
+                                <svg viewBox="0 0 24 24" fill="none" width="24" height="24"
+                                     stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="17 8 12 3 7 8" />
+                                    <line x1="12" y1="3" x2="12" y2="15" />
+                                </svg>
+                                <p class="tf-drop-label">
+                                    <strong>Sélectionnez ou glissez un fichier ici</strong>
+                                </p>
+                                <div class="tf-formats">
+                                    <span class="tf-fmt">.mp3</span>
+                                    <span class="tf-fmt">.wav</span>
+                                    <span class="tf-fmt">.webm</span>
+                                </div>
+                            </div>
+
+                            <button class="tf-btn" type="submit" id="tf-submit-btn">
+                                Lancer la transcription
+                            </button>
+                        </form>
+
+                        <!-- Envoi d'un fichier complet -->
+                        <div id="upload-loading" class="tf-loading">
+                            <div class="tf-spinner"><span></span><span></span></div>
+                            Envoi du fichier en cours…
+                        </div>
+
+                        <!-- Envoi par morceaux -->
+                        <div id="chunk-loading" class="tf-loading tf-loading--column">
+                            <div class="tf-loading-row">
+                                <div class="tf-spinner"><span></span><span></span></div>
+                                <span id="chunk-progress-label">Préparation des morceaux…</span>
+                            </div>
+                            <progress id="chunk-progress" value="0" max="100"></progress>
+                        </div>
+
+                        <div class="tf-recorder">
+                            <audio-explorer></audio-explorer>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tf-vdivider"></div>
+
+                <!-- ── DROITE : résultat en direct ────────────────────────── -->
+                <div class="tf-panel tf-panel--output">
+                    <div id="output" aria-live="polite">
+                        <p class="tf-placeholder">Le résultat s'affichera ici.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/webcomponents/audio-explorer.js" defer></script>
+    <script src="./js/render.js" defer></script>
+    <script src="./js/app.js" defer></script>
+</body>
+</html>

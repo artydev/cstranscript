@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TranscriptAudio.Presentation.JSChunk – Documentation</title>
+    <style>
+        body {font-family: Arial, sans-serif; line-height: 1.6; margin: 20px;}
+        h1, h2, h3 {color: #2c3e50;}
+        table {border-collapse: collapse; width: 100%; margin-bottom: 20px;}
+        th, td {border: 1px solid #ddd; padding: 8px;}
+        th {background-color: #f4f4f4; text-align: left;}
+        code {background:#f9f9f9; padding:2px 4px; border-radius:4px;}
+        pre {background:#f9f9f9; padding:10px; overflow:auto;}
+    </style>
+</head>
+<body>
+    <h1>TranscriptAudio.Presentation.JSChunk – Documentation</h1>
+    <p>This document analyses the source code that belongs to the <code>TranscriptAudio.Presentation.JSChunk</code> namespace. It covers the project structure, the main entry point, UI components, services, configuration, request flow and key architectural points.</p>
+
+    <h2>1. Project Structure</h2>
+    <table>
+        <thead>
+            <tr><th>Directory</th><th>Files</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><code>Components</code></td><td>
+                <ul>
+                    <li><code>TranscribeAudio.razor</code></li>
+                    <li><code>TranscriptAudioRecorder.razor</code></li>
+                    <li><code>TranscriptionResult.razor</code></li>
+                    <li><code>TranscriptionSseBridge.razor</code></li>
+                </ul>
+            </td><td>Blazor UI components that render the upload form, audio recorder, result view and the SSE bridge.</td></tr>
+            <tr><td><code>Services</code></td><td>
+                <ul>
+                    <li><code>TranscriptionStatusTracker.cs</code></li>
+                    <li><code>WhisperService.cs</code></li>
+                </ul>
+            </td><td>Server‑side services for progress tracking and for calling the external Whisper transcription API.</td></tr>
+            <tr><td><code>Config</code></td><td>
+                <ul>
+                    <li><code>ProxyConfig.cs</code></li>
+                    <li><code>WhisperConfig.cs</code></li>
+                </ul>
+            </td><td>POCO configuration classes bound from <code>appsettings.json</code>.</td></tr>
+            <tr><td>Root</td><td>
+                <ul>
+                    <li><code>Program.cs</code></li>
+                    <li><code>TranscriptAudio.Presentation.JSChunk.csproj</code></li>
+                    <li><code>TranscriptAudio.Presentation.JSChunk.sln</code></li>
+                </ul>
+            </td><td>Application bootstrap, DI registration and endpoint definitions.</td></tr>
+        </tbody>
+    </table>
+
+    <h2>2. Program.cs – Bootstrap & Routing</h2>
+    <ul>
+        <li><strong>DI registration</strong>
+            <ul>
+                <li><code>TranscriptionStatusTracker</code> – singleton, holds <code>Channel&lt;string&gt;</code> per transcription ID.</li>
+                <li><code>WhisperService</code> – singleton, queues jobs, calls Whisper, publishes results.</li>
+                <li><code>WhisperConfig</code> and <code>ProxyConfig</code> – bound from configuration.</li>
+            </ul>
+        </li>
+        <li><strong>Kestrel limits</strong> – request body size limited to 100 MiB (+1 MiB margin).</li>
+        <li><strong>Endpoints</strong>
+            <ul>
+                <li><code>GET /transcribe-sse/{id:guid}</code> – generic Server‑Sent Events endpoint. Reads from <code>TranscriptionStatusTracker</code> and streams HTML fragments.</li>
+                <li><code>POST /transcribe-audio</code> – receives a whole audio file, stores it temporarily, enqueues a transcription job, builds an SSE URL and returns a rendered <code>TranscriptionSseBridge</code> fragment.</li>
+                <li><code>POST /transcribe-chunk</code> – receives a single chunk (with <code>index</code>, <code>total</code>, <code>sessionId</code>), enqueues it, and returns JSON containing:
+                    <ul>
+                        <li><code>sseUrl</code> – per‑chunk progress channel.</li>
+                        <li><code>sessionSseUrl</code> – long‑lived channel for the whole session.</li>
+                        <li>identifiers (<code>chunkId</code>, <code>sessionId</code>, <code>index</code>, <code>total</code>).</li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </ul>
+
+    <h2>3. UI Components (Components folder)</h2>
+    <table>
+        <thead>
+            <tr><th>Component</th><th>Responsibility</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><code>TranscribeAudio.razor</code></td><td>Renders a file‑upload form, posts the selected file to <code>/transcribe-audio</code>, and injects the returned HTML (the SSE bridge) into the page.</td></tr>
+            <tr><td><code>TranscriptAudioRecorder.razor</code></td><td>Implements a client‑side audio recorder using the MediaRecorder API, slices the recording into blobs, and posts each blob to <code>/transcribe-chunk</code>. The first chunk also opens the session SSE.</td></tr>
+            <tr><td><code>TranscriptionResult.razor</code></td><td>Displays the final transcription text. It receives HTML fragments from the SSE channel and updates its markup.</td></tr>
+            <tr><td><code>TranscriptionSseBridge.razor</code></td><td>Server‑side component rendered after a POST. Contains a <code>&lt;script&gt;</code> that opens an <code>EventSource</code> to the supplied <code>SseUrl</code>, listens for <code>message</code> events and injects the received HTML into a target container.</td></tr>
+        </tbody>
+    </table>
+
+    <h2>4. Services</h2>
+    <h3>4.1 TranscriptionStatusTracker.cs</h3>
+    <ul>
+        <li>Maintains <code>ConcurrentDictionary&lt;Guid, Channel&lt;string&gt;&gt;</code>.</li>
+        <li><code>Subscribe(Guid id)</code> – returns a <code>ChannelReader&lt;string&gt;</code> for SSE.</li>
+        <li><code>Publish(Guid id, string html)</code> – writes a new HTML fragment to the channel.</li>
+        <li><code>Unsubscribe(Guid id)</code> – completes and removes the channel.</li>
+    </ul>
+    <h3>4.2 WhisperService.cs</h3>
+    <ul>
+        <li><strong>EnqueueTranscriptionAsync</strong> – called from <code>/transcribe-audio</code>. Stores the temporary file path, creates a job, calls the Whisper HTTP API, renders the result via <code>HtmlRenderer</code> and publishes it through the tracker.</li>
+        <li><strong>EnqueueChunkAsync</strong> – called from <code>/transcribe-chunk</code>. Receives raw <code>byte[]</code> for a chunk, forwards it to Whisper, publishes per‑chunk progress (using <code>chunkId</code>) and accumulates partial results. When the last chunk arrives, concatenates all parts, renders the final HTML and publishes it on the <code>sessionId</code> channel.</li>
+        <li>Uses the named <code>HttpClient</code> "Whisper" (configured with base address, timeout, bearer token, optional proxy).</li>
+        <li>Relies on <code>HtmlRenderer</code> to turn Razor components (<code>TranscriptionResult</code>) into HTML strings for SSE.</li>
+    </ul>
+
+    <h2>5. Configuration (Config folder)</h2>
+    <ul>
+        <li><code>WhisperConfig.cs</code> – <code>ApiTranscript</code> (base URL) and <code>ApiKey</code>. Populated from the <code>Whisper</code> section of <code>appsettings.json</code>.</li>
+        <li><code>ProxyConfig.cs</code> – <code>UseProxy</code> and <code>Url</code>. If enabled, the Whisper <code>HttpClient</code> is built with a <code>WebProxy</code>.</li>
+    </ul>
+
+    <h2>6. End‑to‑End Flow (high‑level)</h2>
+    <ol>
+        <li>User selects a file or records audio in the browser.</li>
+        <li>Browser posts to <code>/transcribe-audio</code> (whole file) or <code>/transcribe-chunk</code> (individual chunk).</li>
+        <li>Server stores the payload, creates a GUID, and enqueues a job in <code>WhisperService</code>.</li>
+        <li><code>WhisperService</code> calls the external Whisper API, receives transcription text.</li>
+        <li>The service renders a Razor component (<code>TranscriptionResult</code>) to an HTML snippet using <code>HtmlRenderer</code>.</li>
+        <li>The snippet is sent to <code>TranscriptionStatusTracker</code>, which pushes it into the appropriate <code>Channel&lt;string&gt;</code>.</li>
+        <li>The client‑side <code>EventSource</code> (opened by <code>TranscriptionSseBridge</code>) receives the <code>data: …</code> payload, strips the wrapper and injects the HTML into the page, giving the user real‑time progress.</li>
+        <li>When all chunks are processed, the accumulated text is rendered once more and streamed on the long‑lived session SSE channel.</li>
+    </ol>
+
+    <h2>7. Architectural Highlights</h2>
+    <ul>
+        <li><strong>Separation of concerns</strong> – UI (Razor components), business logic (services), and progress transport (SSE) are cleanly isolated.</li>
+        <li><strong>Server‑Sent Events</strong> – lightweight push mechanism; no WebSocket overhead.</li>
+        <li><strong>Chunked upload support</strong> – enables processing of large files (> 25 MiB) that are sliced client‑side.</li>
+        <li><strong>Dependency injection</strong> – all services, configuration and the named <code>HttpClient</code> are injected via the built‑in container.</li>
+        <li><strong>Server‑side HTML rendering</strong> – re‑uses Razor components for incremental updates, ensuring consistent UI.</li>
+    </ul>
+
+    <h2>8. Points to Consider (future work)</h2>
+    <ul>
+        <li><strong>Error handling</strong> – ensure <code>WhisperService</code> publishes user‑friendly error fragments when the Whisper API fails.</li>
+        <li><strong>Chunk ordering</strong> – current logic assumes in‑order delivery; out‑of‑order chunks would need sequencing logic.</li>
+        <li><strong>Temporary file cleanup</strong> – delete <code>whisper_{id}.tmp</code> after processing to avoid disk bloat.</li>
+        <li><strong>Scalability</strong> – the in‑memory tracker and session dictionaries are process‑local; a distributed cache (e.g., Redis) would be required for multi‑instance deployments.</li>
+    </ul>
+
+    <h2>9. Summary</h2>
+    <p>The <code>TranscriptAudio.Presentation.JSChunk</code> namespace implements a Blazor‑based transcription UI that accepts whole‑file or chunked audio uploads, forwards them to an external Whisper service, and streams progressive results back to the browser via Server‑Sent Events. The architecture cleanly separates UI, service, and transport layers, supports large files through client‑side chunking, and leverages server‑side Razor rendering for consistent HTML updates.</p>
+</body>
+</html>

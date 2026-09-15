@@ -1,0 +1,469 @@
+﻿<!DOCTYPE html>
+<html lang="fr" data-fr-theme>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Transcription Audio – DSFR</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.11.2/dist/dsfr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.11.2/dist/utility/utility.min.css">
+    <style>
+        body {
+            background: #f6f6f6;
+        }
+
+        .app-layout {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            min-height: calc(100vh - 56px);
+            gap: 0;
+        }
+
+        .sidebar {
+            background: #fff;
+            border-right: 1px solid #e5e5e5;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            overflow-y: auto;
+        }
+
+        .result-panel {
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            background: #f6f6f6;
+        }
+
+        .result-placeholder {
+            color: #929292;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+
+        .upload-zone {
+            border: 2px dashed #6a6af4;
+            border-radius: 4px;
+            padding: 2rem 1rem;
+            text-align: center;
+            background: #f5f5fe;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+            .upload-zone:hover {
+                background: #ececfd;
+            }
+
+            .upload-zone .fr-icon-upload-2-line {
+                font-size: 2rem;
+                color: #6a6af4;
+                display: block;
+                margin-bottom: 0.5rem;
+            }
+
+            .upload-zone p {
+                margin: 0;
+                font-size: 0.875rem;
+                color: #3a3a3a;
+                font-weight: 600;
+            }
+
+            .upload-zone small {
+                color: #777;
+                font-size: 0.75rem;
+            }
+
+        .file-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.25rem;
+            border-bottom: 1px solid #efefef;
+            font-size: 0.8125rem;
+        }
+
+            .file-item:last-child {
+                border-bottom: none;
+            }
+
+            .file-item .file-icon {
+                color: #6a6af4;
+                flex-shrink: 0;
+            }
+
+            .file-item .file-name {
+                flex: 1;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                color: #3a3a3a;
+            }
+
+            .file-item .file-actions {
+                display: flex;
+                gap: 0.25rem;
+                flex-shrink: 0;
+            }
+
+        .file-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-size: 0.85rem;
+            line-height: 1;
+        }
+
+            .file-actions button:hover {
+                background: #eee;
+                color: #161616;
+            }
+
+        .folder-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.25rem;
+            font-size: 0.8125rem;
+            color: #3a3a3a;
+            font-weight: 600;
+        }
+
+        .folder-icon {
+            color: #fcc63a;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #666;
+        }
+
+        .breadcrumb-mini {
+            font-size: 0.75rem;
+            color: #888;
+            margin-bottom: 0.5rem;
+        }
+
+            .breadcrumb-mini span {
+                font-weight: 600;
+                color: #3a3a3a;
+            }
+
+        .record-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-icon-sm {
+            background: none;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            cursor: pointer;
+            padding: 4px 8px;
+            color: #555;
+            font-size: 0.85rem;
+        }
+
+            .btn-icon-sm:hover {
+                background: #f0f0f0;
+            }
+
+        .fr-header__brand-top {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République<br>Française
+                                </p>
+                            </div>
+                            <div class="fr-header__operator">
+                                <span class="fr-text--bold" style="color:#161616;font-size:1.1rem;display:flex;align-items:center;gap:0.4rem;">
+                                    <span class="fr-icon-volume-down-line" aria-hidden="true" style="color:#6a6af4"></span>
+                                    Transcription Audio
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Layout principal -->
+    <div class="app-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <!-- Zone d'upload -->
+            <div class="upload-zone" role="button" tabindex="0" onclick="this.querySelector('input').click()">
+                <span class="fr-icon-upload-2-line" aria-hidden="true"></span>
+                <p>Sélectionnez ou glissez un fichier ici</p>
+                <small>.mp3 &nbsp;.wav &nbsp;.webm</small>
+                <input type="file" accept=".mp3,.wav,.webm" style="display:none" onchange="handleFile(this)">
+            </div>
+
+            <!-- Bouton Lancer la transcription -->
+            <button class="fr-btn fr-btn--icon-left fr-icon-send-plane-line" style="width:100%;justify-content:center;" onclick="launchTranscription()">
+                Lancer la transcription
+            </button>
+
+            <!-- Captation -->
+            <div class="record-actions">
+                <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-mic-line" style="flex:1;justify-content:center;border-color:#e1000f;color:#e1000f;" onclick="toggleRecording(this)">
+                    Lancer la captation
+                </button>
+                <button class="btn-icon-sm" title="Exporter" aria-label="Exporter">
+                    <span class="fr-icon-upload-2-line fr-icon--sm" aria-hidden="true"></span>
+                </button>
+                <button class="btn-icon-sm" title="Nouveau dossier" aria-label="Nouveau dossier">
+                    <span class="fr-icon-folder-add-line fr-icon--sm" aria-hidden="true"></span>
+                </button>
+            </div>
+
+            <!-- Liste des fichiers -->
+            <div>
+                <div class="breadcrumb-mini">🏠 / <span>racine</span></div>
+                <ul class="file-list" id="fileList">
+                    <li class="file-item">
+                        <span class="file-icon fr-icon-equalizer-line fr-icon--sm" aria-hidden="true"></span>
+                        <button class="fr-icon-play-circle-line fr-icon--sm" style="background:none;border:none;cursor:pointer;color:#6a6af4;padding:0" aria-label="Lire"></button>
+                        <span class="file-name" title="rec_2026-04-28_09-31-48">rec_2026-04-28_09-31-48…</span>
+                        <div class="file-actions">
+                            <button title="Éditer" aria-label="Éditer"><span class="fr-icon-edit-line fr-icon--sm" aria-hidden="true"></span></button>
+                            <button title="Télécharger" aria-label="Télécharger"><span class="fr-icon-download-line fr-icon--sm" aria-hidden="true"></span></button>
+                            <button title="Supprimer" aria-label="Supprimer" style="color:#e1000f"><span class="fr-icon-delete-line fr-icon--sm" aria-hidden="true"></span></button>
+                        </div>
+                    </li>
+                    <li class="file-item">
+                        <span class="file-icon fr-icon-equalizer-line fr-icon--sm" aria-hidden="true"></span>
+                        <button class="fr-icon-play-circle-line fr-icon--sm" style="background:none;border:none;cursor:pointer;color:#6a6af4;padding:0" aria-label="Lire"></button>
+                        <span class="file-name" title="rec_2026-04-27_13-22-57">rec_2026-04-27_13-22-57…</span>
+                        <div class="file-actions">
+                            <button title="Éditer"><span class="fr-icon-edit-line fr-icon--sm" aria-hidden="true"></span></button>
+                            <button title="Télécharger"><span class="fr-icon-download-line fr-icon--sm" aria-hidden="true"></span></button>
+                            <button title="Supprimer" style="color:#e1000f"><span class="fr-icon-delete-line fr-icon--sm" aria-hidden="true"></span></button>
+                        </div>
+                    </li>
+                    <li class="file-item">
+                        <span class="file-icon fr-icon-equalizer-line fr-icon--sm" aria-hidden="true"></span>
+                        <button class="fr-icon-play-circle-line fr-icon--sm" style="background:none;border:none;cursor:pointer;color:#6a6af4;padding:0" aria-label="Lire"></button>
+                        <span class="file-name" title="rec_2026-04-27_11-16-17">rec_2026-04-27_11-16-17…</span>
+                        <div class="file-actions">
+                            <button title="Éditer"><span class="fr-icon-edit-line fr-icon--sm" aria-hidden="true"></span></button>
+                            <button title="Télécharger"><span class="fr-icon-download-line fr-icon--sm" aria-hidden="true"></span></button>
+                            <button title="Supprimer" style="color:#e1000f"><span class="fr-icon-delete-line fr-icon--sm" aria-hidden="true"></span></button>
+                        </div>
+                    </li>
+                    <li class="file-item">
+                        <span class="file-icon fr-icon-equalizer-line fr-icon--sm" aria-hidden="true"></span>
+                        <button class="fr-icon-play-circle-line fr-icon--sm" style="background:none;border:none;cursor:pointer;color:#6a6af4;padding:0" aria-label="Lire"></button>
+                        <span class="file-name" title="rec_2026-04-01_14-14-54">rec_2026-04-01_14-14-54…</span>
+                        <div class="file-actions">
+                            <button title="Éditer"><span class="fr-icon-edit-line fr-icon--sm" aria-hidden="true"></span></button>
+                            <button title="Télécharger"><span class="fr-icon-download-line fr-icon--sm" aria-hidden="true"></span></button>
+                            <button title="Supprimer" style="color:#e1000f"><span class="fr-icon-delete-line fr-icon--sm" aria-hidden="true"></span></button>
+                        </div>
+                    </li>
+                    <li class="file-item">
+                        <span class="file-icon fr-icon-equalizer-line fr-icon--sm" aria-hidden="true"></span>
+                        <button class="fr-icon-play-circle-line fr-icon--sm" style="background:none;border:none;cursor:pointer;color:#6a6af4;padding:0" aria-label="Lire"></button>
+                        <span class="file-name" title="rec_2026-03-25_23-14-45">rec_2026-03-25_23-14-45…</span>
+                        <div class="file-actions">
+                            <button title="Éditer"><span class="fr-icon-edit-line fr-icon--sm" aria-hidden="true"></span></button>
+                            <button title="Télécharger"><span class="fr-icon-download-line fr-icon--sm" aria-hidden="true"></span></button>
+                            <button title="Supprimer" style="color:#e1000f"><span class="fr-icon-delete-line fr-icon--sm" aria-hidden="true"></span></button>
+                        </div>
+                    </li>
+                    <li class="file-item">
+                        <span class="file-icon fr-icon-equalizer-line fr-icon--sm" aria-hidden="true"></span>
+                        <button class="fr-icon-play-circle-line fr-icon--sm" style="background:none;border:none;cursor:pointer;color:#6a6af4;padding:0" aria-label="Lire"></button>
+                        <span class="file-name" title="rec_2026-03-25_13-01-42">rec_2026-03-25_13-01-42…</span>
+                        <div class="file-actions">
+                            <button title="Éditer"><span class="fr-icon-edit-line fr-icon--sm" aria-hidden="true"></span></button>
+                            <button title="Télécharger"><span class="fr-icon-download-line fr-icon--sm" aria-hidden="true"></span></button>
+                            <button title="Supprimer" style="color:#e1000f"><span class="fr-icon-delete-line fr-icon--sm" aria-hidden="true"></span></button>
+                        </div>
+                    </li>
+                    <li class="file-item">
+                        <span class="file-icon fr-icon-equalizer-line fr-icon--sm" aria-hidden="true"></span>
+                        <button class="fr-icon-play-circle-line fr-icon--sm" style="background:none;border:none;cursor:pointer;color:#6a6af4;padding:0" aria-label="Lire"></button>
+                        <span class="file-name" title="Charles_Baudelaire_29M">Charles_Baudelaire_29M…</span>
+                        <div class="file-actions">
+                            <button title="Éditer"><span class="fr-icon-edit-line fr-icon--sm" aria-hidden="true"></span></button>
+                            <button title="Télécharger"><span class="fr-icon-download-line fr-icon--sm" aria-hidden="true"></span></button>
+                            <button title="Supprimer" style="color:#e1000f"><span class="fr-icon-delete-line fr-icon--sm" aria-hidden="true"></span></button>
+                        </div>
+                    </li>
+                    <li class="file-item">
+                        <span class="file-icon fr-icon-equalizer-line fr-icon--sm" aria-hidden="true"></span>
+                        <button class="fr-icon-play-circle-line fr-icon--sm" style="background:none;border:none;cursor:pointer;color:#6a6af4;padding:0" aria-label="Lire"></button>
+                        <span class="file-name" title="Charles_Baudelaire_20M">Charles_Baudelaire_20M…</span>
+                        <div class="file-actions">
+                            <button title="Éditer"><span class="fr-icon-edit-line fr-icon--sm" aria-hidden="true"></span></button>
+                            <button title="Télécharger"><span class="fr-icon-download-line fr-icon--sm" aria-hidden="true"></span></button>
+                            <button title="Supprimer" style="color:#e1000f"><span class="fr-icon-delete-line fr-icon--sm" aria-hidden="true"></span></button>
+                        </div>
+                    </li>
+                    <li class="file-item">
+                        <span class="file-icon fr-icon-equalizer-line fr-icon--sm" aria-hidden="true"></span>
+                        <button class="fr-icon-play-circle-line fr-icon--sm" style="background:none;border:none;cursor:pointer;color:#6a6af4;padding:0" aria-label="Lire"></button>
+                        <span class="file-name" title="Victor_Hugo_-_A_ma_fill">Victor_Hugo_-_A_ma_fill…</span>
+                        <div class="file-actions">
+                            <button title="Éditer"><span class="fr-icon-edit-line fr-icon--sm" aria-hidden="true"></span></button>
+                            <button title="Télécharger"><span class="fr-icon-download-line fr-icon--sm" aria-hidden="true"></span></button>
+                            <button title="Supprimer" style="color:#e1000f"><span class="fr-icon-delete-line fr-icon--sm" aria-hidden="true"></span></button>
+                        </div>
+                    </li>
+                    <li class="file-item">
+                        <span class="file-icon fr-icon-equalizer-line fr-icon--sm" aria-hidden="true"></span>
+                        <button class="fr-icon-play-circle-line fr-icon--sm" style="background:none;border:none;cursor:pointer;color:#6a6af4;padding:0" aria-label="Lire"></button>
+                        <span class="file-name" title="ROLAND___-L_etoile_d_am">ROLAND___-L_etoile_d_am…</span>
+                        <div class="file-actions">
+                            <button title="Éditer"><span class="fr-icon-edit-line fr-icon--sm" aria-hidden="true"></span></button>
+                            <button title="Télécharger"><span class="fr-icon-download-line fr-icon--sm" aria-hidden="true"></span></button>
+                            <button title="Supprimer" style="color:#e1000f"><span class="fr-icon-delete-line fr-icon--sm" aria-hidden="true"></span></button>
+                        </div>
+                    </li>
+                    <li class="folder-item">
+                        <span class="folder-icon fr-icon-folder-2-line fr-icon--sm" aria-hidden="true"></span>
+                        <span>AUCHAN</span>
+                        <div class="file-actions" style="margin-left:auto">
+                            <button title="Éditer"><span class="fr-icon-edit-line fr-icon--sm" aria-hidden="true"></span></button>
+                            <button title="Supprimer" style="color:#e1000f"><span class="fr-icon-delete-line fr-icon--sm" aria-hidden="true"></span></button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Panneau résultat -->
+        <main class="result-panel" id="resultPanel">
+            <p class="result-placeholder" id="resultPlaceholder">Le résultat s'affichera ici.</p>
+            <div id="resultContent" style="display:none;width:100%;max-width:700px">
+                <div class="fr-alert fr-alert--success fr-alert--sm fr-mb-2w" id="successAlert" style="display:none">
+                    <p>Transcription terminée avec succès.</p>
+                </div>
+                <div class="fr-input-group">
+                    <label class="fr-label" for="transcriptionResult">Résultat de la transcription</label>
+                    <textarea class="fr-input" id="transcriptionResult" rows="16" style="font-family:monospace;font-size:0.875rem;resize:vertical"></textarea>
+                </div>
+                <div class="fr-btns-group fr-btns-group--inline fr-mt-2w">
+                    <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-clipboard-line" onclick="copyResult()">Copier</button>
+                    <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-download-line">Télécharger</button>
+                </div>
+            </div>
+            <!-- Loading -->
+            <div id="loadingState" style="display:none;text-align:center">
+                <div class="fr-mb-2w" style="font-size:0.9rem;color:#555">Transcription en cours…</div>
+                <div style="width:200px;height:4px;background:#e5e5e5;border-radius:2px;overflow:hidden;margin:0 auto">
+                    <div id="progressBar" style="height:100%;width:0%;background:#6a6af4;transition:width 0.3s;border-radius:2px"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.11.2/dist/dsfr.module.min.js" type="module"></script>
+    <script>let isRecording = false;
+
+  function handleFile(input) {
+    if (input.files.length > 0) {
+      const fileName = input.files[0].name;
+      const list = document.getElementById('fileList');
+      const li = document.createElement('li');
+      li.className = 'file-item';
+      li.innerHTML = `
+        <span class="file-icon fr-icon-equalizer-line fr-icon--sm" aria-hidden="true"></span>
+        <button class="fr-icon-play-circle-line fr-icon--sm" style="background:none;border:none;cursor:pointer;color:#6a6af4;padding:0" aria-label="Lire"></button>
+        <span class="file-name">${fileName}</span>
+        <div class="file-actions">
+          <button><span class="fr-icon-edit-line fr-icon--sm" aria-hidden="true"></span></button>
+          <button><span class="fr-icon-download-line fr-icon--sm" aria-hidden="true"></span></button>
+          <button style="color:#e1000f"><span class="fr-icon-delete-line fr-icon--sm" aria-hidden="true"></span></button>
+        </div>`;
+      list.insertBefore(li, list.firstChild);
+    }
+  }
+
+  function launchTranscription() {
+    document.getElementById('resultPlaceholder').style.display = 'none';
+    document.getElementById('resultContent').style.display = 'none';
+    document.getElementById('loadingState').style.display = 'block';
+
+    let progress = 0;
+    const bar = document.getElementById('progressBar');
+    const interval = setInterval(() => {
+      progress += Math.random() * 15;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
+        setTimeout(showResult, 300);
+      }
+      bar.style.width = progress + '%';
+    }, 250);
+  }
+
+  function showResult() {
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('resultContent').style.display = 'block';
+    document.getElementById('successAlert').style.display = 'block';
+    document.getElementById('transcriptionResult').value =
+      `[00:00:00] Bonjour, voici la transcription automatique de votre fichier audio.\n[00:00:05] Ce texte a été généré par le service de transcription.\n[00:00:10] Vous pouvez copier ou télécharger ce résultat.\n[00:00:15] La transcription prend en compte les silences et les pauses.\n[00:00:22] Merci d'utiliser notre service de transcription audio.`;
+  }
+
+  function toggleRecording(btn) {
+    isRecording = !isRecording;
+    if (isRecording) {
+      btn.innerHTML = '<span class="fr-icon-stop-line" aria-hidden="true"></span> Arrêter la captation';
+      btn.style.color = '#fff';
+      btn.style.background = '#e1000f';
+      btn.style.borderColor = '#e1000f';
+    } else {
+      btn.innerHTML = '<span class="fr-icon-mic-line" aria-hidden="true"></span> Lancer la captation';
+      btn.style.color = '#e1000f';
+      btn.style.background = '';
+      btn.style.borderColor = '#e1000f';
+    }
+  }
+
+  function copyResult() {
+    const text = document.getElementById('transcriptionResult').value;
+    navigator.clipboard.writeText(text).catch(() => {});
+  }</script>
+</body>
+</html>

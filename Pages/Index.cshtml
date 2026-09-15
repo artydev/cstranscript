@@ -1,0 +1,85 @@
+﻿@page
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Env
+
+@{
+
+   
+    var baseUrl = Env.EnvironmentName == "Localhost" ? "" : "/transcript";
+}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <title>Whisper RAP</title>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@@gouvfr/dsfr@1.11.2/dist/dsfr.min.css">
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@@gouvfr/dsfr@1.11.2/dist/utility/utility.min.css">
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+
+    <div hx-get="@baseUrl/transcribe-audio-form"
+         hx-trigger="load"
+         hx-swap="outerHTML">
+    </div>
+
+    <script>
+        function getDisplay() {
+            return document.getElementById('file-name-display');
+        }
+
+        function setState(state) {
+            
+            const el = getDisplay();
+
+            if (!el) return;
+
+            el.classList.remove(
+                'file-state-ready',
+                'file-state-uploading',
+                'file-state-queued',
+                'file-state-error'
+            );
+
+            if (state) {
+                el.classList.add(state);
+            }
+        }
+
+        // 1️⃣ File selected
+        document.addEventListener('change', function (event) {
+            if (!event.target || event.target.name !== 'AudioFile') return;
+            if (event.target.files.length === 0) return;
+
+            const el = getDisplay();
+            if (!el) return;
+
+            el.textContent = "Fichier : " + event.target.files[0].name;
+            setState('file-state-ready');
+        });
+
+        // 2️⃣ Upload starting
+        document.addEventListener('htmx:beforeRequest', function (event) {
+            const elt = event.detail?.elt;
+            if (!elt?.getAttribute('hx-post')?.includes('transcribe-audio')) return;
+
+            setState('file-state-uploading');
+        });
+
+        // 3️⃣ Upload accepted / queued
+        document.addEventListener('htmx:afterRequest', function (event) {
+            if (event.detail?.target?.id !== 'output') return;
+            setState('file-state-queued');
+        });
+
+        // 4️⃣ Optional: SSE error handling
+        document.addEventListener('sse:error', function () {
+            setState('file-state-error');
+        });
+    </script>
+
+</body>
+</html>

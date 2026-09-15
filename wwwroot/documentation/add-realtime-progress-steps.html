@@ -1,0 +1,229 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add real-time progress steps (queued, transcribing, finalizing).</title>
+    <style>
+        /* Dracula Theme Colors */
+        :root {
+            --background: black;
+            --current-line: #44475a;
+            --foreground: #f8f8f2;
+            --comment: #6272a4;
+            --cyan: #8be9fd;
+            --green: #50fa7b;
+            --orange: #ffb86c;
+            --pink: #ff79c6;
+            --purple: #bd93f9;
+            --red: #ff5555;
+            --yellow: #f1fa8c;
+        }
+
+        body {
+            font-family: "Fira Code", Consolas, monospace;
+            background: var(--background);
+            color: var(--foreground);
+            margin: 2rem auto;
+            max-width: 900px;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 {
+            color: var(--pink);
+        }
+
+        a {
+            color: var(--cyan);
+        }
+
+        pre {
+            background: var(--current-line);
+            border-left: 4px solid var(--purple);
+            padding: 1rem;
+            overflow-x: auto;
+            border-radius: 4px;
+        }
+
+        code {
+            background: var(--current-line);
+            color: var(--green);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--comment);
+            margin: 2rem 0;
+        }
+
+        .highlight {
+            background: var(--current-line);
+            border: 1px solid var(--purple);
+            padding: 1rem;
+            border-radius: 6px;
+        }
+
+        ol, ul {
+            margin-left: 1.5rem;
+        }
+
+        em, strong {
+            color: var(--yellow);
+        }
+
+        .footer-note {
+            color: var(--comment);
+            text-align: right;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Add real-time progress steps (queued, transcribing, finalizing).</h1>
+
+    <p>This document explains how to enhance the <strong>Whisper transcription app</strong> with live progress indicators using Server-Sent Events (SSE).</p>
+
+    <h2>1️⃣ Goal</h2>
+    <p>Steps shown to users:</p>
+    <ol>
+        <li><strong>Queued</strong> — waiting in line</li>
+        <li><strong>Transcribing</strong> — being processed by Whisper</li>
+        <li><strong>Finalizing</strong> — preparing output</li>
+        <li><strong>Done</strong> — displaying final transcript</li>
+    </ol>
+
+    <hr>
+
+    <h2>2️⃣ Backend Update — WhisperService</h2>
+    <p>Add intermediate <code>SendUpdate()</code> calls:</p>
+
+<pre><code>private async Task ProcessRequestAsync(TranscriptionRequest request, CancellationToken ct)
+{
+    try
+    {
+        await SendUpdate(request.Id, "Fichier ajouté à la file d'attente…", false, true, "queued");
+        await Task.Delay(500, ct);
+        await SendUpdate(request.Id, "Transcription en cours…", false, true, "transcribing");
+
+        var response = await _retryPolicy.ExecuteAsync(async token =&gt;
+        {
+            using var stream = new FileStream(request.FilePath, FileMode.Open, FileAccess.Read);
+            using var content = new MultipartFormDataContent();
+            content.Add(new StreamContent(stream), "file", request.Filename);
+            content.Add(new StringContent("openai/whisper-large-v3"), "model");
+            content.Add(new StringContent("fr"), "language");
+            return await _httpClientFactory.CreateClient("Whisper")
+                .PostAsync("v1/audio/transcriptions", content, token);
+        }, ct);
+
+        await SendUpdate(request.Id, "Finalisation du résultat…", false, true, "finalizing");
+
+        var json = await response.Content.ReadAsStringAsync(ct);
+        using var doc = JsonDocument.Parse(json);
+        var text = doc.RootElement.GetProperty("text").GetString() ?? string.Empty;
+
+        await SendUpdate(request.Id, text, false, false, "done");
+    }
+    catch (Exception ex)
+    {
+        await SendUpdate(request.Id, $"Erreur : {ex.Message}", true, false, "error");
+    }
+}</code></pre>
+
+    <p>Include the new optional parameter in <code>SendUpdate()</code>:</p>
+
+<pre><code>private async Task SendUpdate(Guid id, string msg, bool isError, bool isProcessing, string step = "")
+{
+    using var scope = _serviceProvider.CreateScope();
+    var renderer = scope.ServiceProvider.GetRequiredService&lt;HtmlRenderer&gt;();
+    var html = await renderer.Dispatcher.InvokeAsync(async () =&gt;
+    {
+        var parameters = ParameterView.FromDictionary(new()
+        {
+            { "Message", msg },
+            { "IsError", isError },
+            { "IsProcessing", isProcessing },
+            { "Step", step }
+        });
+        var result = await renderer.RenderComponentAsync&lt;TranscriptionResult&gt;(parameters);
+        return result.ToHtmlString();
+    });
+    await _statusTracker.NotifyUpdate(id, html);
+}</code></pre>
+
+    <hr>
+
+    <h2>3️⃣ Update TranscriptionResult.razor</h2>
+    <p>Add and use the <code>Step</code> parameter:</p>
+
+<pre><code>@code {
+    [Parameter] public string Message { get; set; } = string.Empty;
+    [Parameter] public bool IsError { get; set; }
+    [Parameter] public bool IsProcessing { get; set; }
+    [Parameter] public string Step { get; set; } = string.Empty;
+}
+
+@if (IsError)
+{
+    &lt;div&gt;🔴 @Message&lt;/div&gt;
+}
+else if (IsProcessing)
+{
+    &lt;div&gt;
+        @{
+            string icon = Step switch
+            {
+                "queued" =&gt; "⏳",
+                "transcribing" =&gt; "🎙️",
+                "finalizing" =&gt; "🧩",
+                _ =&gt; "🔵"
+            };
+        }
+        &lt;div&gt;@icon @Message&lt;/div&gt;
+    &lt;/div&gt;
+}
+else
+{
+    &lt;div&gt;✅ Transcription terminée&lt;/div&gt;
+    &lt;div id="final-text"&gt;@Message&lt;/div&gt;
+}</code></pre>
+
+    <hr>
+
+    <h2>4️⃣ JS and CSS Enhancements</h2>
+
+<pre><code>document.addEventListener('sse:message', e =&gt; {
+  const msg = e.detail?.message || '';
+  if (msg.includes('queued')) setState('file-state-queued');
+  else if (msg.includes('transcribing')) setState('file-state-processing');
+  else if (msg.includes('finalizing')) setState('file-state-finalizing');
+  else if (msg.includes('terminée')) setState('file-state-ready');
+});</code></pre>
+
+<pre><code>.file-state-queued { color: var(--cyan); }
+.file-state-processing { color: var(--purple); }
+.file-state-finalizing { color: var(--orange); }
+.file-state-ready { color: var(--green); }</code></pre>
+
+    <hr>
+
+    <h2>✅ Result</h2>
+
+    <ul>
+        <li>⏳ Queued — file waiting</li>
+        <li>🎙️ Transcribing — audio processing</li>
+        <li>🧩 Finalizing — preparing transcript</li>
+        <li>✅ Done — transcription complete</li>
+    </ul>
+
+    <p>This gives users continuous, real-time feedback throughout their transcription workflow.</p>
+
+    <div class="footer-note">
+        Last updated: February 28, 2026 · Dracula Theme
+    </div>
+
+</body>
+</html>

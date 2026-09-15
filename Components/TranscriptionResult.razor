@@ -1,0 +1,103 @@
+﻿@if (IsError)
+{
+    @* --- ERROR STATE --- *@
+    <div class="tf-error-container" style="padding: 1.25rem; border-left: 4px solid #ef4444; background: #fef2f2; border-radius: 8px; margin: 1rem 0; animation: shake 0.4s ease-in-out;">
+        <p class="tf-error" style="color: #b91c1c; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 0.75rem;">
+            <span style="font-size: 1.2rem;">⚠️</span>
+            <span>@Message</span>
+        </p>
+    </div>
+}
+else if (IsProcessing)
+{
+    @* --- PROCESSING / STATUS STATE --- *@
+    <div class="tf-loading-status" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.25rem; padding: 2.5rem; color: #1e40af; text-align: center;">
+        <div class="tf-spinner">
+            <span></span><span></span><span></span><span></span>
+        </div>
+
+        @if (Message.Contains("Initialisation", StringComparison.OrdinalIgnoreCase))
+        {
+            <p style="font-weight: 500; font-size: 1.05rem; margin: 0;  animation: pulse 2s infinite;">
+                 @Message
+            </p>
+        }
+        else if (Message.Contains("Conversion", StringComparison.OrdinalIgnoreCase))
+        {
+            <p style="font-weight: 500; font-size: 1.05rem; margin: 0;  animation: pulse 2s infinite;">
+                @Message
+            </p>
+        }
+        else if (Message.Contains("Transcription", StringComparison.OrdinalIgnoreCase))
+        {
+            <p style="font-weight: 500; font-size: 1.05rem; margin: 0; animation: pulse 1.5s infinite;">
+                 @Message
+            </p>
+        }
+        else if (Message.Contains("Finalisation", StringComparison.OrdinalIgnoreCase))
+        {
+            <p style="font-weight: 500; font-size: 1.05rem; margin: 0; font-style: italic; animation: pulse 2s infinite;">
+                 @Message
+            </p>
+        }
+        else if (Message.Contains("Mise en forme", StringComparison.OrdinalIgnoreCase))
+        {
+            <p style="font-weight: 500; font-size: 1.05rem; margin: 0; color: animation: pulse 1.5s infinite;">
+                @Message
+            </p>
+        }
+        else
+        {
+            <p style="font-weight: 500; font-size: 1.05rem; margin: 0; animation: pulse 2s infinite;">
+                @Message
+            </p>
+        }
+    </div>
+}
+else
+{
+    @* --- FINAL RESULT STATE --- *@
+    <div class="tf-result-ready" style="animation: fadeIn 0.6s ease-out;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 class="tf-output-label">
+                <svg style="width:20px; height:20px" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Transcription terminée
+            </h3>
+
+            <button onclick="copyTranscription(this)"
+                    style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 0.4rem 0.8rem;
+                                   border-radius: 6px; cursor: pointer; font-size: 0.8rem; color: #2563eb;
+                                   font-weight: 600; transition: all 0.2s;">
+                Copier le texte
+            </button>
+        </div>
+
+        <div class="tf-result-text" id="final-text">@((MarkupString)Message)</div>
+    </div>
+
+    <script>
+        function copyTranscription(btn) {
+            const text = document.getElementById('final-text').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = btn.innerText;
+                btn.innerText = "Copié !";
+                btn.style.background = "#dcfce7";
+                btn.style.color = "#166534";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.background = "#eff6ff";
+                    btn.style.color = "#2563eb";
+                }, 2000);
+            });
+        }
+    </script>
+}
+
+@code {
+    [Parameter] public string Message { get; set; } = string.Empty;
+    [Parameter] public bool IsError { get; set; }
+    [Parameter] public bool IsProcessing { get; set; }
+}

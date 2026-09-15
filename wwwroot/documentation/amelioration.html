@@ -1,0 +1,186 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Axes Stratégiques - Whisper RAP</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #2563eb;
+            --success: #10b981;
+            --accent: #f59e0b;
+            --bg: #f8fafc;
+            --text: #334155;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        header {
+            border-bottom: 4px solid var(--primary);
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin: 0;
+            font-size: 2.2rem;
+        }
+
+        .intro {
+            font-size: 1.1rem;
+            color: #64748b;
+            margin-top: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            transition: transform 0.2s;
+            background: #fff;
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+            }
+
+            .card h2 {
+                margin-top: 0;
+                font-size: 1.3rem;
+                color: var(--secondary);
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+                .card h2 i {
+                    font-style: normal;
+                }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        strong {
+            color: var(--primary);
+        }
+
+        .stack-highlight {
+            background: #eff6ff;
+            border-left: 4px solid var(--secondary);
+            padding: 20px;
+            margin-top: 40px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 0.9rem;
+            color: #94a3b8;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Axes Stratégiques : Whisper RAP</h1>
+            <p class="intro">Leviers de croissance et d'optimisation pour la solution de transcription souveraine</p>
+        </header>
+
+        <div class="grid">
+            <!-- Axe 1: Performance -->
+            <div class="card">
+                <h2><i>🚀</i> Performance & Industrialisation</h2>
+                <ul>
+                    <li><strong>Optimisation IIS :</strong> Configuration en mode <em>AlwaysRunning</em> et Pool d'application pré-chargé pour garantir une réactivité immédiate sans "cold start".</li>
+                    <li><strong>Stockage Haute Vélocité :</strong> Migration du dossier temporaire vers un volume SSD dédié pour réduire les temps d'I/O sur les fichiers de 100 Mo.</li>
+                    <li><strong>Monitoring Avancé :</strong> Intégration de <em>Serilog</em> et <em>OpenTelemetry</em> pour surveiller les taux de succès de l'API Albert et la latence réseau.</li>
+                </ul>
+            </div>
+
+            <!-- Axe 2: Valeur Métier -->
+            <div class="card">
+                <h2><i>📄</i> Enrichissement Fonctionnel</h2>
+                <ul>
+                    <li><strong>Export Multi-formats :</strong> Ajout de modules d'exportation native vers <strong>.docx</strong> (Microsoft Word) et <strong>.pdf</strong> avec mise en page automatique.</li>
+                    <li><strong>Sous-titrage (SRT/VTT) :</strong> Exploitation des timestamps de Whisper pour générer des fichiers de sous-titres exploitables par les lecteurs vidéo.</li>
+                    <li><strong>Post-processing IA :</strong> Chaînage automatique vers des modèles LLM (Mistral/Llama) pour produire un <strong>résumé exécutif</strong> ou un compte-rendu.</li>
+                </ul>
+            </div>
+
+            <!-- Axe 3: Sécurité -->
+            <div class="card">
+                <h2><i>🛡️</i> Sécurité & Souveraineté</h2>
+                <ul>
+                    <li><strong>Authentification État :</strong> Intégration de <strong>ProConnect</strong> (AgentConnect) pour sécuriser l'accès aux agents de la fonction publique.</li>
+                    <li><strong>Confidentialité stricte :</strong> Mise en place d'un chiffrement <em>AES-256</em> au repos sur le dossier temporaire IIS et politique d'effacement automatique par tâche planifiée.</li>
+                    <li><strong>Conformité RGPD :</strong> Journalisation des accès et traçabilité complète des données traitées sans stockage persistant des audios.</li>
+                </ul>
+            </div>
+
+            <!-- Axe 4: Écosystème -->
+            <div class="card">
+                <h2><i>🌐</i> Interopérabilité & API</h2>
+                <ul>
+                    <li><strong>Webhooks de notification :</strong> Système d'alerte par email ou messagerie instantanée (Tchap/Slack) dès la fin d'un traitement long.</li>
+                    <li><strong>API-ification :</strong> Exposition d'endpoints sécurisés par clé API pour permettre l'intégration de la transcription dans d'autres outils internes.</li>
+                    <li><strong>Architecture Micro-services :</strong> Possibilité de déporter les <em>Workers</em> sur des serveurs distincts pour augmenter la capacité de traitement en parallèle.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="stack-highlight">
+            <strong>Pourquoi ce combo technologique (HTMX + Razor) est-il un levier majeur ?</strong>
+            <p>
+                Cette architecture permet une <strong>évolution incrémentale à faible coût</strong>. L'ajout d'une nouvelle fonctionnalité (ex: bouton d'export ou résumé IA) ne nécessite pas de refonte du Front-end. Il suffit de créer un nouveau composant Razor et de laisser HTMX l'injecter dynamiquement, garantissant une maintenance simplifiée et une dette technique minimale.
+            </p>
+        </div>
+
+        <footer class="footer">
+            Document Stratégique &bull; Whisper RAP &bull; Technologie .NET & Albert API &bull; DINUM / Etalab
+        </footer>
+    </div>
+
+</body>
+</html>

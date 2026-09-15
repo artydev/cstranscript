@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>@ViewData["Title"]</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   
+    <style>
+        .tf-result-text h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 1.5rem 0 0.75rem 0;
+            color: #1e3a5f;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 0.4rem;
+        }
+
+        .tf-result-text p {
+            margin: 0 0 0.85rem 0;
+            line-height: 1.75;
+            color: #1a202c;
+        }
+
+        .tf-result-text blockquote {
+            border-left: 3px solid #93c5fd;
+            margin: 1rem 0;
+            padding: 0.5rem 1rem;
+            background: #eff6ff;
+            color: #1e40af;
+            font-style: italic;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .tf-result-text em {
+            font-style: italic;
+        }
+    </style>
+   
+    <script src="~/js/libs/htmx.js"></script>
+    <script src="~/js/libs/htmx-sse.js"></script>
+   
+    <script src="~/js/webcomponents/audio-explorer.js" defer></script>
+
+    <script>
+        function copyTranscription(btn) {
+            const text = document.getElementById('final-text').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = btn.innerText;
+                btn.innerText = "Copié !";
+                btn.style.background = "#dcfce7";
+                btn.style.color = "#166534";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.background = "#eff6ff";
+                    btn.style.color = "#2563eb";
+                }, 2000);
+            });
+        }
+    </script>
+
+</head>
+<body>
+    @RenderBody()
+
+    <!------------------------------------------------ template audio-explorer ------------------------------------------------->
+    <template id="template-audio-explorer">
+        <link rel="stylesheet" href="~/css/audio-explorer.css" />
+
+        <div class="shell">
+            <!-- ── Single top bar: title | record | timer | → | upload | new folder | new file ── -->
+            <div class="topbar">
+                <div class="title">Notes <span>Audio</span></div>
+
+                <div class="bar-sep"></div>
+
+                <button id="rec-btn" class="btn-record">
+                    <span id="rec-icon"></span>
+                    <span id="rec-label">Lancer la captation </span>
+                </button>
+
+                <div class="rec-status" id="rec-status">
+                    <div class="rec-dot"></div>
+                    <span id="timer">00:00</span>
+                </div>
+
+                <div class="bar-spacer"></div>
+
+                <div class="bar-actions">
+                    <button id="upload-btn" class="btn-tool" title="Importer un fichier">
+                        <span id="icon-upload"></span>
+                    </button>
+                    <button id="newfolder-btn" class="btn-tool" title="Nouveau dossier">
+                        <span id="icon-folder-plus"></span>
+                    </button>
+                    <input type="file" id="file-input" multiple>
+                </div>
+            </div>
+
+            <div class="breadcrumb" id="breadcrumb"></div>
+
+            <!-- ── Waveform visualisation (shown during recording) ── -->
+            <div class="waveform-wrap" id="waveform-wrap">
+                <canvas id="waveform-canvas"></canvas>
+            </div>
+
+            <div class="file-list-wrap">
+                <ul id="file-list"></ul>
+            </div>
+
+            <div class="dialog-backdrop" id="dialog-backdrop">
+                <div class="dialog-box">
+                    <div class="dialog-msg" id="dialog-msg"></div>
+                    <input class="dialog-input" id="dialog-input" type="text" autocomplete="off" spellcheck="false">
+                    <div class="dialog-actions">
+                        <button id="dialog-cancel" class="btn-secondary">Annuler</button>
+                        <button id="dialog-confirm" class="btn-primary">OK</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </template>
+</body>
+</html>

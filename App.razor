@@ -1,0 +1,8 @@
+﻿@namespace HtmxRazorWhisper
+@using Microsoft.AspNetCore.Components.Routing
+
+<Router AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" />
+    </Found>
+</Router>
